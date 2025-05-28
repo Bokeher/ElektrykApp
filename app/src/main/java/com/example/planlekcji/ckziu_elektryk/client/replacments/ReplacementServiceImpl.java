@@ -5,11 +5,13 @@ import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
 import com.example.planlekcji.ckziu_elektryk.client.response.SuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.common.APIResponseCall;
 import com.example.planlekcji.ckziu_elektryk.client.common.ClientService;
-import com.example.planlekcji.ckziu_elektryk.client.utils.ParamValidator;
 import com.google.gson.JsonElement;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 class ReplacementServiceImpl extends ClientService implements ReplacementService {
 
@@ -18,36 +20,32 @@ class ReplacementServiceImpl extends ClientService implements ReplacementService
     }
 
     @Override
-    public Optional<Replacement> getLatestReplacement() {
-        APIResponseCall apiResponseCall = getData(Endpoint.LATEST_REPLACEMENTS);
+    public List<Replacement> getLatestReplacements(ReplacementType replacementType) {
+        APIResponseCall apiResponseCall = getData(Endpoint.LATEST_REPLACEMENTS
+                .withPlaceholders(Map.of("{mode}", replacementType.getMode())));
 
-        if (!apiResponseCall.hasResponse()) return Optional.empty();
+        if (!apiResponseCall.hasResponse()) return Collections.emptyList();
 
-        return Optional.ofNullable(apiResponseCall
+
+        return apiResponseCall
                 .error(e -> System.err.println("Error occurred: " + e.getMessage()))
-                .success(this::createReplacement));
+                .success(this::createReplacements);
     }
 
-    @Override
-    public Optional<Replacement> getReplacement(String fileName) {
-        ParamValidator.checkNotNullAndNotEmpty(fileName);
-
-        APIResponseCall apiResponseCall = getData(Endpoint.REPLACEMENTS_BY_FILE_NAME
-                .withPlaceholders(Map.of("{file_name}", fileName)));
-
-        if (!apiResponseCall.hasResponse()) return Optional.empty();
-
-        return Optional.ofNullable(apiResponseCall
-                .error(printError())
-                .success(this::createReplacement));
-    }
-
-    private Replacement createReplacement(SuccessResponse successResponse) {
+    private List<Replacement> createReplacements(SuccessResponse successResponse) {
         JsonElement jsonElement = successResponse.getJsonElement();
 
-        return new Replacement(
-                jsonElement.getAsJsonObject().get("file_name").getAsString(),
-                jsonElement.getAsJsonObject().get("content").getAsString()
-        );
+        List<Replacement> replacements = new ArrayList<>();
+
+        jsonElement.getAsJsonArray().forEach(obj -> {
+            List<ReplacementChange> changes = obj.getAsJsonObject().get("changes").getAsJsonArray()
+                    .asList().stream()
+                    .map(jsonElement1 -> new ReplacementChange(jsonElement1.getAsJsonObject().get("period").getAsString(),
+                            jsonElement1.getAsJsonObject().get("info").getAsString())).collect(Collectors.toList());
+
+            replacements.add(new Replacement(obj.getAsJsonObject().get("name").getAsString(), changes));
+        });
+
+        return replacements;
     }
 }

@@ -5,7 +5,7 @@ import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
 
-import java.util.Optional;
+import java.util.List;
 
 public class ReplacementDataDownloader implements Runnable {
     private final ReplacementsDownloadCompleteListener listener;
@@ -20,15 +20,14 @@ public class ReplacementDataDownloader implements Runnable {
     public void run() {
         ReplacementService replacementService = client.getReplacementService();
 
-        Optional<Replacement> replacementOptional = replacementService.getLatestReplacement();
+        List<Replacement> latestReplacements = replacementService.getLatestReplacements();
 
-        if (!replacementOptional.isPresent()) {
+        if (!latestReplacements.isEmpty()) {
             listener.onDownloadComplete("");
             return;
         }
 
-        Replacement replacement = replacementOptional.get();
-
-        listener.onDownloadComplete(replacement.content());
+        //todo add replacements
+        listener.onDownloadComplete("");
     }
 }

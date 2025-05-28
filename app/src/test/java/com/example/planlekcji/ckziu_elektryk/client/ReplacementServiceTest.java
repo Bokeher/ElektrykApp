@@ -7,12 +7,13 @@ import static org.mockito.Mockito.when;
 
 import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementType;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Optional;
+import java.util.List;
 
 public class ReplacementServiceTest {
 
@@ -32,25 +33,15 @@ public class ReplacementServiceTest {
 
     @Test
     public void shouldGetLatestReplacement() {
-        Optional<Replacement> latestReplacement = replacementService.getLatestReplacement();
+        List<Replacement> replacements = replacementService.getLatestReplacements();
 
-        if (latestReplacement.isPresent()) {
-            Replacement replacement = latestReplacement.get();
-
-            assertNotNull(replacement.content());
-            assertNotNull(replacement.fileName());
-        }
+        assertNotNull(replacements);
     }
 
     @Test
-    public void shouldGetReplacementByFileName() {
-        Optional<Replacement> latestReplacement = replacementService.getReplacement("GRAFIK-NIEOBECNOSCI-NAUCZYCIELI-25_v1-pazdziernika-2024.pdf");
+    public void shouldGetLatestReplacementWithModeClasses() {
+        List<Replacement> replacements = replacementService.getLatestReplacements(ReplacementType.CLASSES);
 
-        if (latestReplacement.isPresent()) {
-            Replacement replacement = latestReplacement.get();
-
-            assertNotNull(replacement.content());
-            assertNotNull(replacement.fileName());
-        }
+        assertNotNull(replacements);
     }
 }

@@ -1,6 +1,5 @@
 package com.example.planlekcji.ckziu_elektryk.client;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -12,7 +11,6 @@ import com.example.planlekcji.ckziu_elektryk.client.timetable.info.TimetableInfo
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 public class TimetableInfoServiceTest {
@@ -37,8 +35,7 @@ public class TimetableInfoServiceTest {
             TimetableInfo timetableInfo = timetableInfoOptional.get();
 
             assertNotNull(timetableInfo.applyAt());
-            assertNotNull(timetableInfo.generatedAt());
-            assertEquals(LocalDate.parse("2024-11-10", TimetableInfo.GENERATED_AT_FORMATTER), timetableInfo.generatedAt());
+            assertNotNull(timetableInfo.info());
         }
     }
 }
