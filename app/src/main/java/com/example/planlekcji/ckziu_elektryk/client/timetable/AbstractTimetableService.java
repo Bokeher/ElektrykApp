@@ -4,19 +4,26 @@ import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.ckziu_elektryk.client.common.APIResponseCall;
 import com.example.planlekcji.ckziu_elektryk.client.common.ClientService;
 import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.GroupLesson;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.LessonDetails;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.LessonFactory;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.SchoolClass;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.SingleLesson;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Subject;
 import com.example.planlekcji.ckziu_elektryk.client.utils.ParamValidator;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTimetableService extends ClientService implements TimetableService {
@@ -45,10 +52,15 @@ public abstract class AbstractTimetableService extends ClientService implements 
                     for (JsonElement element : jsonArray) {
                         JsonObject jsonObject = element.getAsJsonObject();
 
-                        schoolEntries.add(new SchoolEntry(
+                        SchoolEntry entry = new SchoolEntry(
                                 jsonObject.get("shortcut").getAsString(),
                                 jsonObject.get("url").getAsString()
-                        ));
+                        );
+
+                        if (jsonObject.has("name"))
+                            entry.setName(jsonObject.get("name").getAsString());
+
+                        schoolEntries.add(entry);
                     }
 
                     return schoolEntries;
@@ -70,9 +82,9 @@ public abstract class AbstractTimetableService extends ClientService implements 
 
                     JsonObject jsonObject = successResponse.getJsonElement().getAsJsonObject();
 
-                    String[] daysOfWeekShortcuts = {"PON", "WTO", "ŚRO", "CZW", "PTK"};
+                    for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+                        String shortcut = dayOfWeek.name();
 
-                    for (String shortcut : daysOfWeekShortcuts) {
                         if (!jsonObject.has(shortcut)) continue;
 
                         List<String> lessons = jsonObject.get(shortcut).getAsJsonArray().asList()
@@ -80,27 +92,47 @@ public abstract class AbstractTimetableService extends ClientService implements 
                                 .map(JsonElement::getAsString)
                                 .collect(Collectors.toList());
 
-                        timetable.put(matchDayOfWeekName(shortcut), lessons);
+                        timetable.put(dayOfWeek, lessons);
                     }
 
                     return timetable;
                 });
     }
 
-    /**
-     * Converts API day of week to this app day of week convention
-     *
-     * @param dayOfWeekAsString day of week shortcut in Polish
-     * @return the app day of week
-     */
-    private DayOfWeek matchDayOfWeekName(@NotNull String dayOfWeekAsString) {
-        return switch (dayOfWeekAsString) {
-            case "PON" -> DayOfWeek.MONDAY;
-            case "WTO" -> DayOfWeek.TUESDAY;
-            case "ŚRO" -> DayOfWeek.WEDNESDAY;
-            case "CZW" -> DayOfWeek.THURSDAY;
-            case "PTK" -> DayOfWeek.FRIDAY;
-            default -> throw new IllegalStateException("Unexpected value: " + dayOfWeekAsString);
-        };
+    @Override
+    public Map<DayOfWeek, List<Lesson>> getTimetable1(String name) {
+        ParamValidator.checkNotNullAndNotEmpty(name);
+
+        APIResponseCall apiResponseCall = getData(oneSchoolEntryEndpoint
+                .withPlaceholders(Map.of("{school_entry_shortcut}", name)));
+
+        if (!apiResponseCall.hasResponse()) return Collections.emptyMap();
+
+        return apiResponseCall.error(printError())
+                .success(successResponse -> {
+                    Map<DayOfWeek, List<Lesson>> timetable = new LinkedHashMap<>();
+                    JsonObject jsonObject = successResponse.getJsonElement().getAsJsonObject();
+
+                    for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+                        String shortcut = dayOfWeek.name();
+
+                        if (!jsonObject.has(shortcut)) continue;
+
+                        JsonArray jsonArray = jsonObject.get(shortcut).getAsJsonArray();
+
+                        if (jsonArray.isEmpty()) {
+                            timetable.put(dayOfWeek, Collections.emptyList());
+                        }
+
+                        List<Lesson> lessons = jsonObject.get(shortcut).getAsJsonArray().asList()
+                                .stream()
+                                .map(jsonElement -> LessonFactory.createLesson(jsonElement.getAsJsonObject()))
+                                .collect(Collectors.toList());
+
+                        timetable.put(dayOfWeek, lessons);
+                    }
+
+                    return timetable;
+                });
     }
 }

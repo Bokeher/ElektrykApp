@@ -52,13 +52,7 @@ public class TimetableDataDownloader implements Runnable {
         // 0 - classes, 1 - teachers, 2 - classrooms
         int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
 
-        SchoolEntryType[] timetableTypes = {
-            SchoolEntryType.CLASSES,
-            SchoolEntryType.TEACHERS,
-            SchoolEntryType.CLASSROOMS
-        };
-
-        return timetableTypes[typeOfTimetable];
+        return SchoolEntryType.values()[typeOfTimetable];
     }
 
     private String getToken(SchoolEntryType timetableType) {
