@@ -3,6 +3,7 @@ package com.example.planlekcji.ckziu_elektryk.client.article;
 import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
 import com.google.gson.annotations.SerializedName;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,5 +63,26 @@ public class Article {
 
     public static Date parsedDate(String text) {
         return DateUtil.parsedDate(Article.CREATION_DATE_FORMAT, text);
+    }
+
+    public URL getHeaderImageUrl(PhotoSize photoSize) throws MalformedURLException {
+        String imageUrlAsString = headerImageUrl.toString();
+
+        int index = imageUrlAsString.lastIndexOf("-");
+        int lastIndexOfDot = imageUrlAsString.lastIndexOf(".");
+        String extension = imageUrlAsString.substring(lastIndexOfDot);
+        String urlWithoutSize = imageUrlAsString.substring(0, index) + extension;
+
+        String[] urlAsArray = urlWithoutSize.split("\\.");
+
+        String size = "";
+
+        if (photoSize != PhotoSize.SIZE_FULL) {
+            size = "-" + photoSize.getName();
+        }
+
+        String newUrl = urlAsArray[0] + "." + urlAsArray[1] + "." + urlAsArray[2] + size + "." + urlAsArray[3];
+
+        return new URL(newUrl);
     }
 }

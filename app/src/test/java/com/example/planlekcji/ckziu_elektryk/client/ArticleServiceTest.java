@@ -9,12 +9,16 @@ import static org.mockito.Mockito.when;
 
 import com.example.planlekcji.ckziu_elektryk.client.article.Article;
 import com.example.planlekcji.ckziu_elektryk.client.article.ArticleService;
+import com.example.planlekcji.ckziu_elektryk.client.article.PhotoSize;
 import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
 import java.util.Optional;
 
 public class ArticleServiceTest {
@@ -87,10 +91,30 @@ public class ArticleServiceTest {
         articleService.getArticle(0);
     }
 
-    @Test()
+    @Test
     public void shouldReturnEmptyOptionalWhenResourceNotFound() {
         Optional<Article> articleOptional = articleService.getArticle(1);
 
         assertFalse(articleOptional.isPresent());
+    }
+
+    @Test
+    public void shouldUseThePhotoSizeForHeaderImageURLNumericValue() throws MalformedURLException {
+        Article article = new Article(1, new Date(), "", "",
+                new URL("https://www.ckziu-elektryk.pl/wp-content/uploads/2025/05/Logo_UE_RGB_UE_Dofinansowane_RGB-1-340x242.png"));
+
+        URL headerImageUrl = article.getHeaderImageUrl(PhotoSize.SIZE_100x75);
+
+        assertEquals("https://www.ckziu-elektryk.pl/wp-content/uploads/2025/05/Logo_UE_RGB_UE_Dofinansowane_RGB-1-100x75.png", headerImageUrl.toString());
+    }
+
+    @Test
+    public void shouldUseThePhotoSizeForHeaderImageURLFullValue() throws MalformedURLException {
+        Article article = new Article(1, new Date(), "", "",
+                new URL("https://www.ckziu-elektryk.pl/wp-content/uploads/2025/05/Logo_UE_RGB_UE_Dofinansowane_RGB-1-340x242.png"));
+
+        URL headerImageUrl = article.getHeaderImageUrl(PhotoSize.SIZE_FULL);
+
+        assertEquals("https://www.ckziu-elektryk.pl/wp-content/uploads/2025/05/Logo_UE_RGB_UE_Dofinansowane_RGB-1.png", headerImageUrl.toString());
     }
 }
