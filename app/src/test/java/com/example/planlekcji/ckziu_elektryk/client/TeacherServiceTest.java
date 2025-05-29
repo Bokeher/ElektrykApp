@@ -11,6 +11,7 @@ import com.example.planlekcji.ckziu_elektryk.client.stubs.CKZiUElektrykClientStu
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntry;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.TimetableService;
+
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 
@@ -55,5 +56,4 @@ public class TeacherServiceTest {
 
         assertNotNull(timetable);
     }
-
 }
