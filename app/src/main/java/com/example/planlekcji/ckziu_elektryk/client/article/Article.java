@@ -4,7 +4,6 @@ import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
 import com.google.gson.annotations.SerializedName;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
