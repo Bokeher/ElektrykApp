@@ -2,7 +2,7 @@ package com.example.planlekcji.ckziu_elektryk.client.response;
 
 import com.google.gson.JsonElement;
 
-public class SuccessResponse extends APIResponse{
+public class SuccessResponse extends APIResponse {
 
     private final JsonElement jsonElement;
 
