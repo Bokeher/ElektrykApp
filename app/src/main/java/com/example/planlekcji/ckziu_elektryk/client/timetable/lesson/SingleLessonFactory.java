@@ -6,7 +6,7 @@ import java.util.List;
 
 final class SingleLessonFactory extends LessonFactory {
 
-    static SingleLesson createLesson(JsonObject jsonObject, Lesson lesson) {
+    SingleLesson createLesson(JsonObject jsonObject, Lesson lesson) {
         List<String> groups = getGroups(jsonObject);
         LessonDetails lessonDetails = new LessonDetails(groups);
 

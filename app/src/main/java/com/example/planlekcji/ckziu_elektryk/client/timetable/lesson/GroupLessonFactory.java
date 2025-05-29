@@ -8,22 +8,22 @@ import java.util.List;
 
 final class GroupLessonFactory extends LessonFactory {
 
-    static GroupLesson createLesson(JsonObject lessonJsonObject, Lesson lesson) {
+    GroupLesson createLesson(JsonObject lessonJsonObject, Lesson lesson) {
         JsonArray lessonsJsonArray = lessonJsonObject.getAsJsonArray("lessons");
-        List<LessonDetails> lessonDetails = new ArrayList<>();
+        List<LessonDetails> details = new ArrayList<>();
 
         lessonsJsonArray.forEach(lessonJsonObj -> {
-            JsonObject jsonObject1 = lessonJsonObj.getAsJsonObject();
+            JsonObject jsonObject = lessonJsonObj.getAsJsonObject();
 
-            LessonDetails lessonDetail = new LessonDetails(getGroups(jsonObject1));
+            LessonDetails lessonDetails = new LessonDetails(getGroups(jsonObject));
 
-            setTeacher(jsonObject1, lessonDetail);
-            setClassroom(jsonObject1, lessonDetail);
-            setSchoolClass(jsonObject1, lessonDetail);
+            setTeacher(jsonObject, lessonDetails);
+            setClassroom(jsonObject, lessonDetails);
+            setSchoolClass(jsonObject, lessonDetails);
 
-            lessonDetails.add(lessonDetail);
+            details.add(lessonDetails);
         });
 
-        return new GroupLesson(lesson, lessonDetails);
+        return new GroupLesson(lesson, details);
     }
 }

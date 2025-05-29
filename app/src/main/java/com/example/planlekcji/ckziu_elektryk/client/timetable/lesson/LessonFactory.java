@@ -18,13 +18,13 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
         Lesson lesson = new Lesson(subject, lessonsNumbers, startTime, endTime);
 
         if (lessonJsonObject.has("lessons")) {
-            return GroupLessonFactory.createLesson(lessonJsonObject, lesson);
+            return new GroupLessonFactory().createLesson(lessonJsonObject, lesson);
         }
 
-        return SingleLessonFactory.createLesson(lessonJsonObject, lesson);
+        return new SingleLessonFactory().createLesson(lessonJsonObject, lesson);
     }
 
-    protected static List<String> getGroups(JsonObject lessonJsonObject) {
+    protected List<String> getGroups(JsonObject lessonJsonObject) {
         return lessonJsonObject.get("groups").getAsJsonArray()
                 .asList()
                 .stream()
@@ -50,7 +50,7 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
                 .collect(Collectors.toList());
     }
 
-    private static List<String> getEntriesShortcuts(JsonObject lessonJsonObject, String entryName) {
+    private List<String> getEntriesShortcuts(JsonObject lessonJsonObject, String entryName) {
         return lessonJsonObject.getAsJsonArray(entryName).asList()
                 .stream()
                 .map(JsonElement::getAsJsonObject)
@@ -58,11 +58,11 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
                 .collect(Collectors.toList());
     }
 
-    private static String getEntryShortcut(JsonObject lessonJsonObject, String entryName) {
+    private String getEntryShortcut(JsonObject lessonJsonObject, String entryName) {
         return lessonJsonObject.getAsJsonObject(entryName).get("shortcut").getAsString();
     }
 
-    protected static void setTeacher(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
+    protected void setTeacher(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
         if (lessonJsonObject.has("teacher")) {
             String teacher = getEntryShortcut(lessonJsonObject, "teacher");
 
@@ -74,7 +74,7 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
         }
     }
 
-    protected static void setClassroom(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
+    protected void setClassroom(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
         if (lessonJsonObject.has("classroom")) {
             String classroom = getEntryShortcut(lessonJsonObject, "classroom");
 
@@ -86,21 +86,21 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
         }
     }
 
-    private static SchoolClass getSchoolClass(JsonObject object) {
+    private SchoolClass getSchoolClass(JsonObject object) {
         return new SchoolClass(object.get("name").getAsString(), object.get("shortcut").getAsString());
     }
 
-    protected static void setSchoolClass(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
+    protected void setSchoolClass(JsonObject lessonJsonObject, LessonDetails lessonDetails) {
         if (lessonJsonObject.has("class")) {
             JsonObject classJsonObject = lessonJsonObject.getAsJsonObject("class");
             lessonDetails.addSchoolClass(getSchoolClass(classJsonObject));
         } else if (lessonJsonObject.has("classes")) {
-            JsonArray jsonArray1 = lessonJsonObject.getAsJsonArray("classes");
+            JsonArray jsonArray = lessonJsonObject.getAsJsonArray("classes");
 
-            List<SchoolClass> schoolClasses = jsonArray1.asList()
+            List<SchoolClass> schoolClasses = jsonArray.asList()
                     .stream()
                     .map(JsonElement::getAsJsonObject)
-                    .map(LessonFactory::getSchoolClass)
+                    .map(this::getSchoolClass)
                     .collect(Collectors.toList());
 
             lessonDetails.setSchoolClasses(schoolClasses);

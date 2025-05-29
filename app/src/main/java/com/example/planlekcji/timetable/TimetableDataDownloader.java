@@ -10,6 +10,7 @@ import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.TimetableService;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.info.TimetableInfo;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.listener.TimetableDownloadCompleteListener;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 
@@ -38,11 +39,11 @@ public class TimetableDataDownloader implements Runnable {
         Log.d("token: ", token);
         TimetableService timetableService = client.getTimetableService(schoolEntryType);
 
-        Map<DayOfWeek, List<String>> map = timetableService.getTimetable(token);
+        Map<DayOfWeek, List<Lesson>> map = timetableService.getTimetable(token);
 
         Log.d("map: ", map.toString());
 
-        listener.onDownloadComplete(map);
+//        listener.onDownloadComplete(map); //todo use new method
     }
 
     private SchoolEntryType getTimetableType() {

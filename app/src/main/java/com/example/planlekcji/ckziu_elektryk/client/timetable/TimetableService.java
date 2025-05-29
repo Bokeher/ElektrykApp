@@ -10,7 +10,5 @@ public interface TimetableService {
 
     List<SchoolEntry> getList();
 
-    Map<DayOfWeek, List<String>> getTimetable(String name);
-
-    Map<DayOfWeek, List<Lesson>> getTimetable1(String name);
+    Map<DayOfWeek, List<Lesson>> getTimetable(String name);
 }

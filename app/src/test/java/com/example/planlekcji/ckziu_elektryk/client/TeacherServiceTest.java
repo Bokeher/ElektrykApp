@@ -46,7 +46,7 @@ public class TeacherServiceTest {
 
     @Test
     public void shouldGetTeacherTimetable() {
-        Map<DayOfWeek, List<Lesson>> timetable = service.getTimetable1("ma");
+        Map<DayOfWeek, List<Lesson>> timetable = service.getTimetable("ma");
 
         timetable.forEach((dayOfWeek, lessons) -> {
             System.out.printf("Day: %s -> Lessons: %s", dayOfWeek, lessons);

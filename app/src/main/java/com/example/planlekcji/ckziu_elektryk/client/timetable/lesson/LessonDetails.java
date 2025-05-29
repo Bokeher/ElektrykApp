@@ -1,7 +1,10 @@
 package com.example.planlekcji.ckziu_elektryk.client.timetable.lesson;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class LessonDetails {
 
@@ -33,6 +36,7 @@ public class LessonDetails {
         return classrooms;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "LessonDetails{" +
@@ -65,5 +69,31 @@ public class LessonDetails {
 
     public void setClassrooms(List<String> classrooms) {
         this.classrooms = classrooms;
+    }
+
+    public Optional<SchoolClass> getSchoolClass() {
+        if (this.schoolClasses.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(this.schoolClasses.get(0));
+    }
+
+    public String getTeacher() {
+        return getFirstEntryShortcut(this.teachers);
+    }
+
+    public String getClassroom() {
+        return getFirstEntryShortcut(this.classrooms);
+    }
+
+    private String getFirstEntryShortcut(List<String> entries) {
+        if (entries.isEmpty()) {
+            return "";
+        }
+
+        String firstEntry = entries.get(0);
+
+        return firstEntry == null ? "" : firstEntry;
     }
 }
