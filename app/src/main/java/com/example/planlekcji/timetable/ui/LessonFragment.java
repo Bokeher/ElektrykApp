@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class LessonFragment extends Fragment {
-    List<String> lessonHours = new ArrayList<>();
+    private final List<String> lessonHours = new ArrayList<>();
 
     public static final String TITLE = "title";
     private Map<DayOfWeek, List<String>> timetableMap;
