@@ -1,5 +1,6 @@
 package com.example.planlekcji.ckziu_elektryk.client.timetable.lesson;
 
+import com.example.planlekcji.ckziu_elektryk.client.utils.Time;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,7 +16,7 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
         List<Integer> lessonsNumbers = getLessonNumbers(lessonJsonObject);
         Subject subject = getSubject(lessonJsonObject);
 
-        Lesson lesson = new Lesson(subject, lessonsNumbers, startTime, endTime);
+        Lesson lesson = new Lesson(subject, lessonsNumbers, Time.of(startTime), Time.of(endTime));
 
         if (lessonJsonObject.has("lessons")) {
             return new GroupLessonFactory().createLesson(lessonJsonObject, lesson);

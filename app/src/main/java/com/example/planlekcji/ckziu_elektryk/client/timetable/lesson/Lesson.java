@@ -2,16 +2,18 @@ package com.example.planlekcji.ckziu_elektryk.client.timetable.lesson;
 
 import androidx.annotation.NonNull;
 
+import com.example.planlekcji.ckziu_elektryk.client.utils.Time;
+
 import java.util.List;
 
 public class Lesson {
 
     private final Subject subject;
     private final List<Integer> lessonsNumbers;
-    private final String startTime;
-    private final String endTime;
+    private final Time startTime;
+    private final Time endTime;
 
-    protected Lesson(Subject subject, List<Integer> lessonsNumbers, String startTime, String endTime) {
+    protected Lesson(Subject subject, List<Integer> lessonsNumbers, Time startTime, Time endTime) {
         this.subject = subject;
         this.lessonsNumbers = lessonsNumbers;
         this.startTime = startTime;
@@ -26,11 +28,11 @@ public class Lesson {
         return subject;
     }
 
-    public String getStartTime() {
+    public Time getStartTime() {
         return startTime;
     }
 
-    public String getEndTime() {
+    public Time getEndTime() {
         return endTime;
     }
 
