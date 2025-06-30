@@ -8,11 +8,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
+import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.response.ErrorResponse;
+import com.example.planlekcji.ckziu_elektryk.client.response.PaginatedSuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.response.SuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.ClientServiceStub;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
 import com.google.gson.JsonElement;
+import com.google.gson.internal.LinkedTreeMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -137,5 +140,21 @@ public class ClientServiceTest {
 
         assertNull(errorResponse);
         assertNull(jsonElement);
+    }
+
+    @Test
+    public void shouldRespondObjectWithPagination() {
+        setCorrectAPIUrl();
+        given(config.getToken()).willReturn(TestConstants.TOKEN);
+
+        ClientServiceStub clientServiceStub = new ClientServiceStub(config);
+        Page<LinkedTreeMap<String, Object>> page = clientServiceStub.getDataWithPagination(Endpoint.ARTICLES_LIST)
+                .success(successResponse -> {
+                    PaginatedSuccessResponse paginatedSuccessResponse = (PaginatedSuccessResponse) successResponse;
+
+                    return paginatedSuccessResponse.getPage();
+                });
+
+        assertNotNull(page);
     }
 }

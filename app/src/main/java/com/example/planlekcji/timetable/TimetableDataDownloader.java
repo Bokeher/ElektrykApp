@@ -2,6 +2,7 @@ package com.example.planlekcji.timetable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.R;
@@ -9,6 +10,7 @@ import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.TimetableService;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.info.TimetableInfo;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.listener.TimetableDownloadCompleteListener;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 
@@ -34,11 +36,14 @@ public class TimetableDataDownloader implements Runnable {
         SchoolEntryType schoolEntryType = getTimetableType();
         String token = getToken(schoolEntryType).replaceAll(" ", "");
 
+        Log.d("token: ", token);
         TimetableService timetableService = client.getTimetableService(schoolEntryType);
 
-        Map<DayOfWeek, List<String>> map = timetableService.getTimetable(token);
+        Map<DayOfWeek, List<Lesson>> map = timetableService.getTimetable(token);
 
-        listener.onDownloadComplete(map);
+        Log.d("map: ", map.toString());
+
+//        listener.onDownloadComplete(map); //todo use new method
     }
 
     private SchoolEntryType getTimetableType() {
@@ -48,13 +53,7 @@ public class TimetableDataDownloader implements Runnable {
         // 0 - classes, 1 - teachers, 2 - classrooms
         int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
 
-        SchoolEntryType[] timetableTypes = {
-            SchoolEntryType.CLASSES,
-            SchoolEntryType.TEACHERS,
-            SchoolEntryType.CLASSROOMS
-        };
-
-        return timetableTypes[typeOfTimetable];
+        return SchoolEntryType.values()[typeOfTimetable];
     }
 
     private String getToken(SchoolEntryType timetableType) {

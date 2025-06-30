@@ -1,21 +1,24 @@
 package com.example.planlekcji.ckziu_elektryk.client.common;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.R;
 import com.example.planlekcji.ckziu_elektryk.client.Config;
+import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.response.ErrorResponse;
+import com.example.planlekcji.ckziu_elektryk.client.response.PaginatedSuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.response.SuccessResponse;
 import com.example.planlekcji.utils.ToastUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import okhttp3.OkHttpClient;
@@ -26,7 +29,7 @@ import okhttp3.ResponseBody;
 public abstract class ClientService {
 
     private final OkHttpClient httpClient;
-    private final Gson gson;
+    protected final Gson gson;
     private final Config config;
 
     protected ClientService(Config config) {
@@ -35,7 +38,7 @@ public abstract class ClientService {
         this.gson = new Gson();
     }
 
-    protected APIResponseCall getData(@NonNull Endpoint endpoint) {
+    protected APIResponseCall getData(@NonNull Endpoint endpoint, BiFunction<Integer, JsonElement, SuccessResponse> successResponseBiFunction) {
         Request request = new Request.Builder()
                 .addHeader("Authorization", config.getToken())
                 .url(config.getAPIUrl() + "/" + endpoint.getName())
@@ -63,7 +66,7 @@ public abstract class ClientService {
                 return apiResponseCall;
             }
 
-            apiResponseCall.setSuccessResponse(new SuccessResponse(response.code(), jsonElement));
+            apiResponseCall.setSuccessResponse(successResponseBiFunction.apply(response.code(), jsonElement));
         } catch (IOException exception) {
             Context context = MainActivity.getContext();
             String errorMessage = context.getString(R.string.toastErrorMessage_failedApiConnection);
@@ -74,7 +77,20 @@ public abstract class ClientService {
         return apiResponseCall;
     }
 
+    protected APIResponseCall getData(@NonNull Endpoint endpoint) {
+        return getData(endpoint, SuccessResponse::new);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected APIResponseCall getDataWithPagination(@NonNull Endpoint endpoint) {
+        return getData(endpoint, (code, jsonElement) -> {
+            Page<LinkedTreeMap<String, Object>> page = gson.fromJson(jsonElement, Page.class);
+
+            return new PaginatedSuccessResponse(code, jsonElement, page);
+        });
+    }
+
     protected @NonNull Consumer<ErrorResponse> printError() {
-        return errorResponse -> Log.e("error", errorResponse.getMessage());
+        return errorResponse -> System.err.println(errorResponse.getMessage());
     }
 }

@@ -1,10 +1,12 @@
 package com.example.planlekcji.ckziu_elektryk.client.replacments;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ReplacementService {
 
-    Optional<Replacement> getLatestReplacement();
+    List<Replacement> getLatestReplacements(ReplacementType replacementType);
 
-    Optional<Replacement> getReplacement(String fileName);
+    default List<Replacement> getLatestReplacements() {
+        return this.getLatestReplacements(ReplacementType.TEACHERS);
+    }
 }

@@ -6,7 +6,6 @@ import com.example.planlekcji.ckziu_elektryk.client.common.ClientService;
 import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
 import com.google.gson.JsonElement;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 class TimetableInfoServiceImpl extends ClientService implements TimetableInfoService {
@@ -21,15 +20,14 @@ class TimetableInfoServiceImpl extends ClientService implements TimetableInfoSer
         if (!apiResponseCall.hasResponse())
             return Optional.empty();
 
-        return Optional.of(apiResponseCall
+        return Optional.ofNullable(apiResponseCall
                 .error(printError())
                 .success(successResponse -> {
                     JsonElement jsonElement = successResponse.getJsonElement();
 
                     return new TimetableInfo(
-                            jsonElement.getAsJsonObject().get("apply_at").getAsString(),
-                            LocalDate.parse(jsonElement.getAsJsonObject().get("generated_at").getAsString(),
-                                    TimetableInfo.GENERATED_AT_FORMATTER)
+                            TimetableInfo.parseDate(jsonElement.getAsJsonObject().get("apply_at").getAsString()),
+                            jsonElement.getAsJsonObject().get("info").getAsString()
                     );
                 }));
     }

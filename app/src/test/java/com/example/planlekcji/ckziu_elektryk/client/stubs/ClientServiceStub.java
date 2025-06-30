@@ -15,4 +15,8 @@ public class ClientServiceStub extends ClientService {
     public APIResponseCall getData(@NonNull Endpoint endpoint) {
         return super.getData(endpoint);
     }
+
+    public APIResponseCall getDataWithPagination(@NonNull Endpoint endpoint) {
+        return super.getDataWithPagination(endpoint);
+    }
 }
