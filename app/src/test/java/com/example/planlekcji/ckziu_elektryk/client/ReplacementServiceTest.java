@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
-import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
-import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementType;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementType;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
 
 import org.junit.Before;
