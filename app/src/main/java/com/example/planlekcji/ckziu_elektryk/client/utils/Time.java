@@ -2,6 +2,8 @@ package com.example.planlekcji.ckziu_elektryk.client.utils;
 
 import androidx.annotation.NonNull;
 
+import java.util.Locale;
+
 public final class Time {
 
     private final int hours;
@@ -36,23 +38,6 @@ public final class Time {
     @NonNull
     @Override
     public String toString() {
-        String hoursAsString = String.valueOf(hours);
-        String minutesAsString = String.valueOf(minutes);
-
-        hoursAsString = setCorrectFormat(hoursAsString);
-        minutesAsString = setCorrectFormat(minutesAsString);
-
-        return String.format("%s:%s", hoursAsString, minutesAsString);
-    }
-
-    private String setCorrectFormat(String timeElementAsString) {
-
-        String newTimeElement = "";
-
-        if (timeElementAsString.length() == 1) {
-            newTimeElement = "0" + timeElementAsString;
-        }
-
-        return newTimeElement;
+        return String.format(Locale.US, "%02d:%02d", hours, minutes);
     }
 }
