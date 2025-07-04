@@ -31,4 +31,6 @@
     <string name="toastErrorMessage_failedApiConnection">Unable to connect to the server.</string>
     <string name="toastErrorMessage_noInternetConnection">Internet connection is required.</string>
     <string name="toastErrorMessage_noInternetConnectionRetry">No internet connection. Trying to reconnect…</string>
+    <string name="lessonCard_placeholder_lessonNumber" translatable="false">1</string>
+    <string name="lessonCard_placeholder_lessonTimeRange" translatable="false">08:00 - 08:45</string>
 </resources>
