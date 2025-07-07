@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.listener.TimetableDownloadCompleteListener;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
 import com.example.planlekcji.replacements.ReplacementDataProcessor;
@@ -21,7 +22,7 @@ public class MainViewModel extends ViewModel {
 
     // downloaded data
     private final MutableLiveData<List<String>> replacements = new MutableLiveData<>();
-    private final MutableLiveData<Map<DayOfWeek, List<String>>> timetableMap = new MutableLiveData<>();
+    private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetableMap = new MutableLiveData<>();
 
     // retry handlers
     private final RetryHandler replaceRetryHandler = new RetryHandler(this::startReplacementDownload);
@@ -72,7 +73,7 @@ public class MainViewModel extends ViewModel {
     private void startTimetableDownload() {
         TimetableDataDownloader downloader = new TimetableDataDownloader(client, new TimetableDownloadCompleteListener() {
             @Override
-            public void onDownloadComplete(Map<DayOfWeek, List<String>> timetableMap) {
+            public void onDownloadComplete(Map<DayOfWeek, List<Lesson>> timetableMap) {
                 // Update LiveData
                 MainViewModel.this.timetableMap.postValue(timetableMap);
             }
@@ -85,7 +86,7 @@ public class MainViewModel extends ViewModel {
         new Thread(downloader).start();
     }
 
-    public LiveData<Map<DayOfWeek, List<String>>> getTimetableLiveData() {
+    public LiveData<Map<DayOfWeek, List<Lesson>>> getTimetableLiveData() {
         return timetableMap;
     }
 

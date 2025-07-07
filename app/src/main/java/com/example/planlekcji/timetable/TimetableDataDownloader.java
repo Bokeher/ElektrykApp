@@ -43,7 +43,8 @@ public class TimetableDataDownloader implements Runnable {
 
         Log.d("map: ", map.toString());
 
-//        listener.onDownloadComplete(map); //todo use new method
+
+        listener.onDownloadComplete(map);
     }
 
     private SchoolEntryType getTimetableType() {

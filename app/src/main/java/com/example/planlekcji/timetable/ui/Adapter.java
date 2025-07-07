@@ -8,15 +8,16 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 
 import java.util.List;
 import java.util.Map;
 
 public class Adapter extends FragmentStateAdapter {
-    private final Map<DayOfWeek, List<String>> timetableMap;
+    private final Map<DayOfWeek, List<Lesson>> timetableMap;
 
-    public Adapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Map<DayOfWeek, List<String>> timetableMap) {
+    public Adapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, Map<DayOfWeek, List<Lesson>> timetableMap) {
         super(fragmentManager, lifecycle);
         this.timetableMap = timetableMap;
     }
