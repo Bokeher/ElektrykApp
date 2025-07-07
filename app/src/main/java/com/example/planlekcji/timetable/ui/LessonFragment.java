@@ -2,11 +2,9 @@ package com.example.planlekcji.timetable.ui;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,33 +13,30 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.R;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.SingleLesson;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class LessonFragment extends Fragment {
     private final List<String> lessonHours = new ArrayList<>();
 
     public static final String TITLE = "title";
-    private Map<DayOfWeek, List<String>> timetableMap;
+    private Map<DayOfWeek, List<Lesson>> timetableMap;
 
     public LessonFragment() {
     }
 
-    public LessonFragment(Map<DayOfWeek, List<String>> timetableMap) {
+    public LessonFragment(Map<DayOfWeek, List<Lesson>> timetableMap) {
         this.timetableMap = timetableMap;
     }
 
@@ -54,7 +49,10 @@ public class LessonFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Context context = MainActivity.getContext();
+//        Context mainContext = MainActivity.getContext();
+        Context context = requireContext();
+        LinearLayout layout = view.findViewById(R.id.linearLayoutCards);
+        LayoutInflater inflater = LayoutInflater.from(context);
 
         addLessonHours();
 
@@ -63,105 +61,153 @@ public class LessonFragment extends Fragment {
         assert argument != null;
         int tabNumber = Character.getNumericValue(argument.charAt(3));
 
-        DayOfWeek dayNumber = DayOfWeek.getDayOfWeek(tabNumber);
+        DayOfWeek thisDayNumber = DayOfWeek.getDayOfWeek(tabNumber);
 
-        int currentLesson = getCurrentLessonIndex(tabNumber);
+        int currentLessonIndex = getCurrentLessonIndex(tabNumber);
 
         if (timetableMap == null || timetableMap.get(DayOfWeek.MONDAY) == null) {
             return;
         }
 
-        int dayNumbers = Objects.requireNonNull(timetableMap.get(DayOfWeek.MONDAY)).size();
-        for (int i = 0; i < dayNumbers; i++) {
-            String number = (i + 1) + "";
-            String hour = lessonHours.get(i);
+        Log.d("test: ", "onViewCreated");
+        List<Lesson> lessonList = timetableMap.get(thisDayNumber);
+        Log.d("test: ", lessonList.toString());
 
-            String html = Objects.requireNonNull(timetableMap.get(dayNumber)).get(i);
+        Map<Integer, String> lessonData = new HashMap<>();
 
-            SpannableStringBuilder str = new SpannableStringBuilder(html);
-
-            LinearLayout linearLayout = view.findViewById(R.id.linearLayoutCards);
-
-            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT,
-                    ConstraintLayout.LayoutParams.WRAP_CONTENT
-            );
-            layoutParams.setMargins(0, 0, 0, 10);
-
-            int color = ContextCompat.getColor(context, R.color.lessonBackgroundColor);
-
-            CardView cardView = new CardView(context);
-            cardView.setRadius(30);
-            cardView.setCardBackgroundColor(color);
-
-            ConstraintLayout.LayoutParams layoutParams_matchParent2 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
-            ConstraintLayout.LayoutParams layoutParams_matchParent3 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
-
-            TextView lessonNumber = new TextView(getActivity());
-            lessonNumber.setId(R.id.textViewLessonNumber);
-            lessonNumber.setText(number);
-            lessonNumber.setTextSize(TypedValue.COMPLEX_UNIT_SP, 36f);
-            lessonNumber.setGravity(Gravity.CENTER);
-            lessonNumber.setPadding(dpToPx(10), 0, 0, 0);
-
-            TextView lessonHours = new TextView(getActivity());
-            lessonHours.setId(R.id.textViewLessonHours);
-            lessonHours.setText(hour);
-            lessonHours.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            lessonHours.setLayoutParams(layoutParams_matchParent2);
-
-            TextView lessonData = new TextView(getActivity());
-            lessonData.setId(R.id.textViewLessonData);
-            lessonData.setText(str);
-            lessonData.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
-            lessonData.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            lessonData.setLayoutParams(layoutParams_matchParent3);
-
-
-            lessonData.setPadding(0, 0, 0, dpToPx(16));
-
-            if (i == currentLesson - 1) {
-                int bgColor = ContextCompat.getColor(context, R.color.primaryDark);
-                int textColor = ContextCompat.getColor(context, R.color.black);
-
-                cardView.setCardBackgroundColor(bgColor);
-                lessonNumber.setTextColor(textColor);
-                lessonHours.setTextColor(textColor);
-                lessonData.setTextColor(textColor);
-                lessonNumber.setTypeface(null, Typeface.BOLD);
-                lessonHours.setTypeface(null, Typeface.BOLD);
-                lessonData.setTypeface(null, Typeface.BOLD);
+        for(Lesson lesson : lessonList) {
+            Log.d("token: ", lesson.getLessonsNumbers().toString());
+            for (int number : lesson.getLessonsNumbers()) {
+                if(lesson instanceof SingleLesson){
+                    String lessonDetails = ((SingleLesson) lesson).getDetails().toString();
+                    Log.d("token", lessonDetails);
+                    lessonData.compute(number, (k, old) ->
+                            old == null
+                            ? "single: " + lesson.getSubject().shortcut()
+                            : old + "<-single->" + lesson.getSubject().shortcut());
+                } else {
+                    if(lessonData.get(number) != null) {
+                        lessonData.compute(number, (k, old) -> old + "<-group->" + lesson.getSubject().shortcut());
+                    } else {
+                        lessonData.put(number, "group: "+lesson.getSubject().shortcut());
+                    }
+                }
             }
-
-            ConstraintLayout constraintLayout = new ConstraintLayout(context);
-            constraintLayout.setId(R.id.constraintLayout);
-
-            constraintLayout.addView(lessonNumber);
-            constraintLayout.addView(lessonHours);
-            constraintLayout.addView(lessonData);
-
-            ConstraintSet constraintSet = new ConstraintSet();
-            constraintSet.clone(constraintLayout);
-            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.TOP, R.id.constraintLayout, ConstraintSet.TOP, dpToPx(8));
-            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.LEFT, R.id.textViewLessonNumber, ConstraintSet.RIGHT, dpToPx(40));
-            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT, dpToPx(16));
-
-            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.TOP, R.id.textViewLessonHours, ConstraintSet.BOTTOM, dpToPx(2));
-            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM, dpToPx(2));
-            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT, dpToPx(16));
-            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.LEFT, R.id.textViewLessonNumber, ConstraintSet.LEFT, dpToPx(40));
-
-            constraintSet.connect(R.id.textViewLessonNumber, ConstraintSet.TOP, R.id.constraintLayout, ConstraintSet.TOP, 0);
-            constraintSet.connect(R.id.textViewLessonNumber, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM, 0);
-            constraintSet.applyTo(constraintLayout);
-
-            cardView.addView(constraintLayout);
-            cardView.setLayoutParams(layoutParams);
-            linearLayout.addView(cardView);
         }
+
+        Log.d("tokenz", ">"+lessonData);
+
+        for (int i = 1; i <= lessonData.size(); i++) {
+            View cardView = inflater.inflate(R.layout.lesson_card, layout, false);
+
+            TextView lessonHoursText = cardView.findViewById(R.id.textViewLessonHours);
+            TextView viewLessonData = cardView.findViewById(R.id.textViewLessonData);
+            TextView lessonNumber = cardView.findViewById(R.id.textViewLessonNumber);
+
+            String timeRangeString = lessonHours.get(i-1);
+            lessonHoursText.setText(timeRangeString);
+            lessonNumber.setText(i+"");
+            viewLessonData.setText(lessonData.get(i));
+
+            layout.addView(cardView);
+        }
+//        for(Lesson lesson : lessonList) {
+//            for(int i = 0; i < lesson.getLessonsNumbers().size(); i++) {
+
+
+//        }
+//
+//        int dayNumbers = Objects.requireNonNull(timetableMap.get(DayOfWeek.MONDAY)).size();
+//        for (int i = 0; i < dayNumbers; i++) {
+//            String number = (i + 1) + "";
+//            String hour = lessonHours.get(i);
+//
+//            String html = Objects.requireNonNull(timetableMap.get(dayNumber)).get(i);
+//
+//            SpannableStringBuilder str = new SpannableStringBuilder(html);
+//
+//            LinearLayout linearLayout = view.findViewById(R.id.linearLayoutCards);
+//
+//            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(
+//                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+//                    ConstraintLayout.LayoutParams.WRAP_CONTENT
+//            );
+//            layoutParams.setMargins(0, 0, 0, 10);
+//
+//            int color = ContextCompat.getColor(context, R.color.lessonBackgroundColor);
+//
+//            CardView cardView = new CardView(context);
+//            cardView.setRadius(30);
+//            cardView.setCardBackgroundColor(color);
+//
+//            ConstraintLayout.LayoutParams layoutParams_matchParent2 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+//            ConstraintLayout.LayoutParams layoutParams_matchParent3 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+//
+//            TextView lessonNumber = new TextView(getActivity());
+//            lessonNumber.setId(R.id.textViewLessonNumber);
+//            lessonNumber.setText(number);
+//            lessonNumber.setTextSize(TypedValue.COMPLEX_UNIT_SP, 36f);
+//            lessonNumber.setGravity(Gravity.CENTER);
+//            lessonNumber.setPadding(dpToPx(10), 0, 0, 0);
+//
+//            TextView lessonHours = new TextView(getActivity());
+//            lessonHours.setId(R.id.textViewLessonHours);
+//            lessonHours.setText(hour);
+//            lessonHours.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+//            lessonHours.setLayoutParams(layoutParams_matchParent2);
+//
+//            TextView lessonData = new TextView(getActivity());
+//            lessonData.setId(R.id.textViewLessonData);
+//            lessonData.setText(str);
+//            lessonData.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+//            lessonData.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+//            lessonData.setLayoutParams(layoutParams_matchParent3);
+//
+//
+//            lessonData.setPadding(0, 0, 0, dpToPx(16));
+//
+//            if (i == currentLesson - 1) {
+//                int bgColor = ContextCompat.getColor(context, R.color.primaryDark);
+//                int textColor = ContextCompat.getColor(context, R.color.black);
+//
+//                cardView.setCardBackgroundColor(bgColor);
+//                lessonNumber.setTextColor(textColor);
+//                lessonHours.setTextColor(textColor);
+//                lessonData.setTextColor(textColor);
+//                lessonNumber.setTypeface(null, Typeface.BOLD);
+//                lessonHours.setTypeface(null, Typeface.BOLD);
+//                lessonData.setTypeface(null, Typeface.BOLD);
+//            }
+//
+//            ConstraintLayout constraintLayout = new ConstraintLayout(context);
+//            constraintLayout.setId(R.id.constraintLayout);
+//
+//            constraintLayout.addView(lessonNumber);
+//            constraintLayout.addView(lessonHours);
+//            constraintLayout.addView(lessonData);
+//
+//            ConstraintSet constraintSet = new ConstraintSet();
+//            constraintSet.clone(constraintLayout);
+//            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.TOP, R.id.constraintLayout, ConstraintSet.TOP, dpToPx(8));
+//            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.LEFT, R.id.textViewLessonNumber, ConstraintSet.RIGHT, dpToPx(40));
+//            constraintSet.connect(R.id.textViewLessonHours, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT, dpToPx(16));
+//
+//            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.TOP, R.id.textViewLessonHours, ConstraintSet.BOTTOM, dpToPx(2));
+//            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM, dpToPx(2));
+//            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT, dpToPx(16));
+//            constraintSet.connect(R.id.textViewLessonData, ConstraintSet.LEFT, R.id.textViewLessonNumber, ConstraintSet.LEFT, dpToPx(40));
+//
+//            constraintSet.connect(R.id.textViewLessonNumber, ConstraintSet.TOP, R.id.constraintLayout, ConstraintSet.TOP, 0);
+//            constraintSet.connect(R.id.textViewLessonNumber, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM, 0);
+//            constraintSet.applyTo(constraintLayout);
+//
+//            cardView.addView(constraintLayout);
+//            cardView.setLayoutParams(layoutParams);
+//            linearLayout.addView(cardView);
     }
 
     private void addLessonHours() {
+        // TODO: This should probably be acquired from API
         String[] hours = {
                 "08:00 - 08:45", "08:50 - 09:35", "09:45 - 10:30", "10:50 - 11:35", "11:45 - 12:30",
                 "12:40 - 13:25", "13:35 - 14:20", "14:25 - 15:10", "15:15 - 16:00", "16:05 - 16:50",
