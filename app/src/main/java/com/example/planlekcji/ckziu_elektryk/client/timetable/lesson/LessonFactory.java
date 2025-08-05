@@ -11,18 +11,25 @@ import java.util.stream.Collectors;
 public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactory {
 
     public static Lesson createLesson(JsonObject lessonJsonObject) {
-        String startTime = lessonJsonObject.get("startTime").getAsString();
-        String endTime = lessonJsonObject.get("endTime").getAsString();
         List<Integer> lessonsNumbers = getLessonNumbers(lessonJsonObject);
-        Subject subject = getSubject(lessonJsonObject);
+        LessonDuration lessonDuration = getDuration(lessonJsonObject);
 
-        Lesson lesson = new Lesson(subject, lessonsNumbers, Time.of(startTime), Time.of(endTime));
+        Lesson lesson = new Lesson(lessonsNumbers, lessonDuration);
 
         if (lessonJsonObject.has("lessons")) {
             return new GroupLessonFactory().createLesson(lessonJsonObject, lesson);
         }
 
         return new SingleLessonFactory().createLesson(lessonJsonObject, lesson);
+    }
+
+    private static LessonDuration getDuration(JsonObject jsonObject) {
+        JsonObject durationJsonObject = jsonObject.getAsJsonObject("duration");
+
+        String startTime = durationJsonObject.get("startTime").getAsString();
+        String endTime = durationJsonObject.get("endTime").getAsString();
+
+        return new LessonDuration(Time.of(startTime), Time.of(endTime));
     }
 
     protected List<String> getGroups(JsonObject lessonJsonObject) {
@@ -33,7 +40,7 @@ public sealed class LessonFactory permits SingleLessonFactory, GroupLessonFactor
                 .collect(Collectors.toList());
     }
 
-    private static Subject getSubject(JsonObject lessonJsonObject) {
+    protected Subject getSubject(JsonObject lessonJsonObject) {
         JsonObject subjctJsonObject = lessonJsonObject.get("subject").getAsJsonObject();
 
         return new Subject(

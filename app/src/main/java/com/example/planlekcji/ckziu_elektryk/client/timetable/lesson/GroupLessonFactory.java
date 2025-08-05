@@ -15,7 +15,7 @@ final class GroupLessonFactory extends LessonFactory {
         lessonsJsonArray.forEach(lessonJsonObj -> {
             JsonObject jsonObject = lessonJsonObj.getAsJsonObject();
 
-            LessonDetails lessonDetails = new LessonDetails(getGroups(jsonObject));
+            LessonDetails lessonDetails = new LessonDetails(getSubject(jsonObject), getGroups(jsonObject));
 
             setTeacher(jsonObject, lessonDetails);
             setClassroom(jsonObject, lessonDetails);

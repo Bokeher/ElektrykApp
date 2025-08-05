@@ -2,21 +2,19 @@ package com.example.planlekcji.ckziu_elektryk.client.timetable.lesson;
 
 import androidx.annotation.NonNull;
 
-import com.example.planlekcji.ckziu_elektryk.client.utils.Time;
-
 import java.util.List;
 
-public class SingleLesson extends Lesson{
+public class SingleLesson extends Lesson {
 
     private final LessonDetails details;
 
-    public SingleLesson(Subject subject, List<Integer> lessonsNumbers, Time startTime, Time endTime, LessonDetails details) {
-        super(subject, lessonsNumbers, startTime, endTime);
+    public SingleLesson(List<Integer> lessonsNumbers, LessonDuration duration, LessonDetails details) {
+        super(lessonsNumbers, duration);
         this.details = details;
     }
 
     public SingleLesson(Lesson lesson, LessonDetails lessonDetails) {
-        this(lesson.getSubject(), lesson.getLessonsNumbers(), lesson.getStartTime(), lesson.getEndTime(), lessonDetails);
+        this(lesson.getLessonsNumbers(), lesson.getDuration(), lessonDetails);
     }
 
     public LessonDetails getDetails() {

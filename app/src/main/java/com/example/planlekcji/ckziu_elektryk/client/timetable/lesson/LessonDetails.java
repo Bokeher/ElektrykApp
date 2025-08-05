@@ -7,13 +7,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class LessonDetails {
-
+    private final Subject subject;
     private final List<String> groups;
     private List<SchoolClass> schoolClasses;
     private List<String> teachers;
     private List<String> classrooms;
 
-    public LessonDetails(List<String> groups) {
+    public LessonDetails(Subject subject, List<String> groups) {
+        this.subject = subject;
         this.groups = groups;
         this.schoolClasses = new ArrayList<>();
         this.teachers = new ArrayList<>();
@@ -34,6 +35,10 @@ public class LessonDetails {
 
     public List<String> getClassrooms() {
         return classrooms;
+    }
+
+    public Subject getSubject() {
+        return subject;
     }
 
     @NonNull
