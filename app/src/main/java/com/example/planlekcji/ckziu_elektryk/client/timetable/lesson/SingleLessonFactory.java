@@ -8,7 +8,8 @@ final class SingleLessonFactory extends LessonFactory {
 
     SingleLesson createLesson(JsonObject jsonObject, Lesson lesson) {
         List<String> groups = getGroups(jsonObject);
-        LessonDetails lessonDetails = new LessonDetails(groups);
+        Subject subject = getSubject(jsonObject);
+        LessonDetails lessonDetails = new LessonDetails(subject, groups);
 
         setTeacher(jsonObject, lessonDetails);
         setClassroom(jsonObject, lessonDetails);
