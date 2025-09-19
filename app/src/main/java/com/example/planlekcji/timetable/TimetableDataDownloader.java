@@ -36,13 +36,16 @@ public class TimetableDataDownloader implements Runnable {
         SchoolEntryType schoolEntryType = getTimetableType();
         String token = getToken(schoolEntryType).replaceAll(" ", "");
 
+        if (token.isEmpty()) {
+            Log.e("Error", "Token is empty");
+            return;
+        }
+
         Log.d("token: ", token);
         TimetableService timetableService = client.getTimetableService(schoolEntryType);
 
         Map<DayOfWeek, List<Lesson>> map = timetableService.getTimetable(token);
-
-        Log.d("map: ", map.toString());
-
+        if (map != null) Log.d("timetable_map", map.toString());
 
         listener.onDownloadComplete(map);
     }

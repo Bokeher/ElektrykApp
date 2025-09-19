@@ -34,7 +34,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public void fetchData() {
-        startReplacementDownload();
+        // startReplacementDownload();
         startTimetableDownload();
     }
 
