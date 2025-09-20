@@ -1,6 +1,7 @@
 package com.example.planlekcji.timetable.ui;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.R;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.GroupLesson;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.LessonDetails;
@@ -115,7 +118,31 @@ public class LessonFragment extends Fragment {
     }
 
     private String detailsToString(LessonDetails lessonDetails) {
-        return lessonDetails.getSubject().name() + " " + lessonDetails.getClassroom() + " " + lessonDetails.getTeacher();
+        SchoolEntryType timetableType = getTimetableType();
+
+        String subjectName = lessonDetails.getSubject().name();
+        String schoolClassName = "";
+        if (lessonDetails.getSchoolClass().isPresent()) schoolClassName = lessonDetails.getSchoolClass().get().shortcut();
+        String teacherName = lessonDetails.getTeacher();
+        String classroomName = lessonDetails.getClassroom();
+
+        if (timetableType == SchoolEntryType.CLASSES) {
+            return subjectName + " " + classroomName + " " + teacherName;
+        } else if (timetableType == SchoolEntryType.TEACHERS) {
+            return schoolClassName + " " + subjectName + " " + classroomName;
+        } else {
+            return subjectName + " " + schoolClassName + " " + teacherName;
+        }
+    }
+
+    private SchoolEntryType getTimetableType() {
+        Context context = MainActivity.getContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
+
+        // 0 - classes, 1 - teachers, 2 - classrooms
+        int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
+
+        return SchoolEntryType.values()[typeOfTimetable];
     }
 
     private void addLessonHours() {
