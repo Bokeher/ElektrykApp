@@ -5,10 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.listener.TimetableDownloadCompleteListener;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
-import com.example.planlekcji.replacements.ReplacementDataProcessor;
 import com.example.planlekcji.replacements.ReplacementDataDownloader;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 import com.example.planlekcji.utils.RetryHandler;
@@ -21,7 +21,7 @@ public class MainViewModel extends ViewModel {
     private final CKZiUElektrykClient client;
 
     // downloaded data
-    private final MutableLiveData<List<String>> replacements = new MutableLiveData<>();
+    private final MutableLiveData<List<Replacement>> replacements = new MutableLiveData<>();
     private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetableMap = new MutableLiveData<>();
 
     // retry handlers
@@ -34,7 +34,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public void fetchData() {
-        // startReplacementDownload();
+        startReplacementDownload();
         startTimetableDownload();
     }
 
@@ -49,17 +49,9 @@ public class MainViewModel extends ViewModel {
     private void startReplacementDownload() {
         ReplacementDataDownloader downloader = new ReplacementDataDownloader(client, new ReplacementsDownloadCompleteListener() {
             @Override
-            public void onDownloadComplete(String rawReplacements) {
-                if(rawReplacements.isEmpty()) {
-                    replacements.postValue(null);
-                }
-
-                // Process replacement data
-                ReplacementDataProcessor replacementDataProcessor = new ReplacementDataProcessor(rawReplacements);
-                replacementDataProcessor.process();
-
+            public void onDownloadComplete(List<Replacement> replacementList) {
                 // Update LiveData
-                replacements.postValue(replacementDataProcessor.getReplacements());
+                MainViewModel.this.replacements.postValue(replacementList);
             }
 
             @Override
@@ -83,6 +75,7 @@ public class MainViewModel extends ViewModel {
                 timetableRetryHandler.handleRetry();
             }
         });
+
         new Thread(downloader).start();
     }
 
@@ -90,7 +83,7 @@ public class MainViewModel extends ViewModel {
         return timetableMap;
     }
 
-    public LiveData<List<String>> getReplacementsLiveData() {
+    public LiveData<List<Replacement>> getReplacementsLiveData() {
         return replacements;
     }
 

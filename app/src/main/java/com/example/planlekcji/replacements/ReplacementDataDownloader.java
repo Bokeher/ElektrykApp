@@ -1,10 +1,14 @@
 package com.example.planlekcji.replacements;
 
+import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementType;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ReplacementDataDownloader implements Runnable {
@@ -20,14 +24,20 @@ public class ReplacementDataDownloader implements Runnable {
     public void run() {
         ReplacementService replacementService = client.getReplacementService();
 
-        List<Replacement> latestReplacements = replacementService.getLatestReplacements();
+        List<Replacement> latestReplacements;
 
-        if (!latestReplacements.isEmpty()) {
-            listener.onDownloadComplete("");
+        SchoolEntryType timetableType = MainActivity.getTimetableType();
+        if (timetableType == SchoolEntryType.CLASSES) {
+            latestReplacements = replacementService.getLatestReplacements(ReplacementType.CLASSES);
+        } else {
+            latestReplacements = replacementService.getLatestReplacements();
+        }
+
+        if (latestReplacements == null) {
+            listener.onDownloadComplete(Collections.emptyList());
             return;
         }
 
-        //todo add replacements
-        listener.onDownloadComplete("");
+        listener.onDownloadComplete(latestReplacements);
     }
 }

@@ -1,8 +1,12 @@
 package com.example.planlekcji.listener;
 
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
+
+import java.util.List;
+
 public interface ReplacementsDownloadCompleteListener {
 
-    void onDownloadComplete(String rawReplacements);
+    void onDownloadComplete(List<Replacement> rawReplacements);
 
     void onDownloadFailed();
 }
