@@ -1,7 +1,6 @@
 package com.example.planlekcji.timetable.ui;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -118,7 +117,7 @@ public class LessonFragment extends Fragment {
     }
 
     private String detailsToString(LessonDetails lessonDetails) {
-        SchoolEntryType timetableType = getTimetableType();
+        SchoolEntryType timetableType = MainActivity.getTimetableType();
 
         String subjectName = lessonDetails.getSubject().name();
         String schoolClassName = "";
@@ -133,16 +132,6 @@ public class LessonFragment extends Fragment {
         } else {
             return subjectName + " " + schoolClassName + " " + teacherName;
         }
-    }
-
-    private SchoolEntryType getTimetableType() {
-        Context context = MainActivity.getContext();
-        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
-
-        // 0 - classes, 1 - teachers, 2 - classrooms
-        int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
-
-        return SchoolEntryType.values()[typeOfTimetable];
     }
 
     private void addLessonHours() {
