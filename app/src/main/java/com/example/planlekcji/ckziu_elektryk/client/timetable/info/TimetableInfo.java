@@ -11,6 +11,6 @@ public record TimetableInfo(Date applyAt, String info) {
     public static final SimpleDateFormat APPLY_AT_FORMATTER = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
 
     public static Date parseDate(String text) {
-        return DateUtil.parsedDate(APPLY_AT_FORMATTER, text);
+        return DateUtil.parseDate(APPLY_AT_FORMATTER, text);
     }
 }

@@ -6,9 +6,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
+import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementRequest;
 import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
 import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementType;
 import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
+import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +43,13 @@ public class ReplacementServiceTest {
     @Test
     public void shouldGetLatestReplacementWithModeClasses() {
         List<Replacement> replacements = replacementService.getLatestReplacements(ReplacementType.CLASSES);
+
+        assertNotNull(replacements);
+    }
+
+    @Test
+    public void shouldGetLatestReplacementWithModeClassesAndDate() {
+        List<Replacement> replacements = replacementService.getReplacements(ReplacementType.CLASSES, DateUtil.parseDate(ReplacementRequest.REPLACEMENT_DATE_PATTERN, "2025-09-09"));
 
         assertNotNull(replacements);
     }
