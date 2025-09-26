@@ -8,11 +8,15 @@ public final class DateUtil {
 
     private DateUtil() {}
 
-    public static Date parsedDate(SimpleDateFormat simpleDateFormat, String text) {
+    public static Date parseDate(SimpleDateFormat simpleDateFormat, String text) {
         try {
             return simpleDateFormat.parse(text);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String formatDate(SimpleDateFormat simpleDateFormat, Date date) {
+        return simpleDateFormat.format(date);
     }
 }

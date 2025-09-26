@@ -62,7 +62,7 @@ public class Article {
     }
 
     public static Date parsedDate(String text) {
-        return DateUtil.parsedDate(Article.CREATION_DATE_FORMAT, text);
+        return DateUtil.parseDate(Article.CREATION_DATE_FORMAT, text);
     }
 
     public URL getHeaderImageUrl(PhotoSize photoSize) throws MalformedURLException {
