@@ -1,4 +1,4 @@
-package com.example.planlekcji.ckziu_elektryk.client.replacments;
+package com.example.planlekcji.ckziu_elektryk.client.replacements;
 
 import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.ckziu_elektryk.client.common.APIResponseCall;

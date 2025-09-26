@@ -1,4 +1,4 @@
-package com.example.planlekcji.ckziu_elektryk.client.replacments;
+package com.example.planlekcji.ckziu_elektryk.client.replacements;
 
 public enum ReplacementType {
 

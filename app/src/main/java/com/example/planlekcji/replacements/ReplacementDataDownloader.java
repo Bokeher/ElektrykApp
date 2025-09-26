@@ -1,8 +1,8 @@
 package com.example.planlekcji.replacements;
 
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
-import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
-import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
 
 import java.util.List;
