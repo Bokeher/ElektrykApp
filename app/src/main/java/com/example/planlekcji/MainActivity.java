@@ -1,6 +1,7 @@
 package com.example.planlekcji;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.fragments.model.ViewPagerAdapter;
 import com.example.planlekcji.utils.ToastUtils;
 
@@ -102,4 +104,31 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
+    public static SchoolEntryType getTimetableType() {
+        Context context = MainActivity.getContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
+
+        // 0 - classes, 1 - teachers, 2 - classrooms
+        int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
+
+        return SchoolEntryType.values()[typeOfTimetable];
+    }
+
+    public static String getToken(SchoolEntryType timetableType) {
+        Context context = MainActivity.getContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
+
+        String tokenType;
+        if (timetableType == SchoolEntryType.CLASSES) {
+            tokenType = context.getString(R.string.classTokenKey);
+        } else if(timetableType == SchoolEntryType.TEACHERS) {
+            tokenType = context.getString(R.string.teacherTokenKey);
+        } else {
+            tokenType = context.getString(R.string.classroomTokenKey);
+        }
+
+        return sharedPreferences.getString(tokenType, "");
+    }
+
 }

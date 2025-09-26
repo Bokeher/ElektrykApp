@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.planlekcji.MainViewModel;
 import com.example.planlekcji.R;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 import com.example.planlekcji.timetable.ui.Adapter;
 import com.google.android.material.tabs.TabLayout;
@@ -26,7 +27,7 @@ public class TimetableFragment extends Fragment {
     private ViewPager2 viewPager_timetable;
     private MainViewModel mainViewModel;
 
-    private Map<DayOfWeek, List<String>> timetableMap;
+    private Map<DayOfWeek, List<Lesson>> timetableMap;
     private View view;
 
     @Override

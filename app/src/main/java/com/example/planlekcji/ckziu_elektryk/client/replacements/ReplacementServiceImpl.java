@@ -1,15 +1,18 @@
 package com.example.planlekcji.ckziu_elektryk.client.replacements;
 
 import com.example.planlekcji.ckziu_elektryk.client.Config;
+
 import com.example.planlekcji.ckziu_elektryk.client.common.APIResponseCall;
 import com.example.planlekcji.ckziu_elektryk.client.common.ClientService;
 import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
 import com.example.planlekcji.ckziu_elektryk.client.response.SuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
+
 import com.google.gson.JsonElement;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
