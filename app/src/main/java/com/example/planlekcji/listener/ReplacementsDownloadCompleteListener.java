@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ReplacementsDownloadCompleteListener {
 
-    void onDownloadComplete(List<Replacement> rawReplacements);
+    void onDownloadComplete(List<List<Replacement>> rawReplacements);
 
     void onDownloadFailed();
 }

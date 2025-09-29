@@ -5,26 +5,33 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.MainViewModel;
 import com.example.planlekcji.R;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementChange;
+import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
+import com.example.planlekcji.replacements.ReplacementDataDownloader;
 import com.example.planlekcji.utils.BoyerMooreSearch;
 import com.example.planlekcji.utils.DelayedSearchTextWatcher;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 public class ReplacementsFragment extends Fragment {
     private View view;
-    private List<Replacement> replacements;
+    private List<List<Replacement>> replacements;
     private MainViewModel mainViewModel;
 
     // used for searching
@@ -46,10 +53,7 @@ public class ReplacementsFragment extends Fragment {
 
     private void observeAndHandleReplacementsLiveData() {
         mainViewModel.getReplacementsLiveData().observe(getViewLifecycleOwner(), newReplacements -> {
-            Log.d("adw", "livedata");
-
             replacements = newReplacements;
-            Log.d("adw", replacements.toString());
 
             if (replacements == null || replacements.isEmpty()) return;
 
@@ -72,29 +76,21 @@ public class ReplacementsFragment extends Fragment {
     }
 
     private void updateReplacements() {
-        Log.d("adw", "update");
-
         TextView textFieldReplacements = view.findViewById(R.id.textView_replacements);
         EditText searchBar = view.findViewById(R.id.editText_searchBar);
         View divider = view.findViewById(R.id.divider);
         TextView textView_noResults = view.findViewById(R.id.textView_noResults);
 
-        if(replacements == null || replacements.isEmpty()) {
-            Log.d("adw", "null");
-
+        if(replacements == null || replacements.isEmpty() || areReplacementsEmpty()) {
 //            searchBar.setVisibility(View.GONE);
             divider.setVisibility(View.GONE);
 
             textFieldReplacements.setText(getString(R.string.no_replacements));
             return;
         }
-        Log.d("adw", replacements.toString());
-
 
         searchBar.setVisibility(View.VISIBLE);
         divider.setVisibility(View.VISIBLE);
-
-        Log.d("adw", "111");
 
 //        if (replacementIdsToShow == null || replacementIdsToShow.isEmpty()) {
 //            Log.d("adw", "222");
@@ -105,29 +101,49 @@ public class ReplacementsFragment extends Fragment {
 //        }
 
         StringBuilder displayedText = new StringBuilder();
+        Date[] dates = ReplacementDataDownloader.getNext5Dates(); // holds next 5 non-weekend dates
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault());
 
-        for (Replacement replacement : replacements) {
-            displayedText.append(replacementToString(replacement));
-            displayedText.append("\n");
+        // TODO: Use multiple TextViews and insert a horizontal line between each one
+        // TODO: Display loading when downloading replacements
+        int i = 0;
+        for (List<Replacement> dayReplacements : replacements) {
+            if(dayReplacements.isEmpty()) continue;
+
+            if(i != 0) {
+                displayedText.append("<br><br>");
+            }
+
+            displayedText.append("<h2>")
+                    .append(sdf.format(dates[i]))
+                    .append("</h2>");
+
+            for (Replacement replacement : dayReplacements) {
+                displayedText.append(replacementToString(replacement));
+                displayedText.append("<br>");
+            }
+
+            i++;
         }
 //
 //        List<String> filteredReplacements = replacements.stream()
 //                .filter(rep -> replacementIdsToShow.contains(replacements.indexOf(rep)))
 //                .collect(Collectors.toList());
-
-        textFieldReplacements.setText(displayedText.toString());
+        Spanned spannedText = Html.fromHtml(displayedText.toString(), Html.FROM_HTML_MODE_LEGACY);
+        textFieldReplacements.setText(spannedText);
         textView_noResults.setVisibility(View.GONE);
-        Log.d("adw", "333");
-
     }
 
     private String replacementToString(Replacement replacement) {
         StringBuilder res = new StringBuilder();
+        SchoolEntryType timetableType = MainActivity.getTimetableType();
+        if(timetableType != SchoolEntryType.CLASSES) {
+            res.append(replacement.name()).append("<br>");
+        }
 
-        res.append(replacement.name()).append("\n");
         List<ReplacementChange> changes = replacement.changes();
         for (ReplacementChange change : changes) {
-            res.append(change.period()).append(" | ").append(change.info()).append("\n");
+            res.append(change.period()).append(" | ").append(change.info()).append("<br>");
         }
 
         return res.toString();
@@ -146,5 +162,15 @@ public class ReplacementsFragment extends Fragment {
         }
 
         return replacementIds;
+    }
+
+    private boolean areReplacementsEmpty() {
+        for (List<Replacement> dayReplacements: replacements) {
+            if(!dayReplacements.isEmpty()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

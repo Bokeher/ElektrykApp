@@ -20,11 +20,11 @@ import java.util.Map;
 public class MainViewModel extends ViewModel {
     private final CKZiUElektrykClient client;
 
-    // downloaded data
-    private final MutableLiveData<List<Replacement>> replacements = new MutableLiveData<>();
+    // Downloaded data
+    private final MutableLiveData<List<List<Replacement>>> replacements = new MutableLiveData<>();
     private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetableMap = new MutableLiveData<>();
 
-    // retry handlers
+    // Retry handlers
     private final RetryHandler replaceRetryHandler = new RetryHandler(this::startReplacementDownload);
     private final RetryHandler timetableRetryHandler = new RetryHandler(this::startReplacementDownload);
 
@@ -49,7 +49,7 @@ public class MainViewModel extends ViewModel {
     private void startReplacementDownload() {
         ReplacementDataDownloader downloader = new ReplacementDataDownloader(client, new ReplacementsDownloadCompleteListener() {
             @Override
-            public void onDownloadComplete(List<Replacement> replacementList) {
+            public void onDownloadComplete(List<List<Replacement>> replacementList) {
                 // Update LiveData
                 MainViewModel.this.replacements.postValue(replacementList);
             }
@@ -83,7 +83,7 @@ public class MainViewModel extends ViewModel {
         return timetableMap;
     }
 
-    public LiveData<List<Replacement>> getReplacementsLiveData() {
+    public LiveData<List<List<Replacement>>> getReplacementsLiveData() {
         return replacements;
     }
 
