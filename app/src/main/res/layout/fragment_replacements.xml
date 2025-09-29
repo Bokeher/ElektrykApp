@@ -29,17 +29,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/editText_searchBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:autofillHints="searchQuery"
-                    android:ems="10"
-                    android:hint="@string/searchHint_searchBar"
-                    android:inputType="textPersonName" />
-
                 <TextView
                     android:id="@+id/textView_noResults"
                     android:layout_width="match_parent"
@@ -52,14 +41,6 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
-
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="?android:attr/listDivider" />
 
                 <TextView
                     android:id="@+id/textView_replacements"
