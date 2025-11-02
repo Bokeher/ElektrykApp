@@ -99,7 +99,20 @@ public class LessonFragment extends Fragment {
             }
         }
 
-        for (int i = 1; i <= lessonData.size(); i++) {
+        if (lessonData.isEmpty()){
+            return;
+        }
+
+        int minKey = Collections.min(lessonData.keySet());
+        int maxKey = Collections.max(lessonData.keySet());
+
+        // Add empty data entries for gaps between lessons
+        for (int i = minKey; i <= maxKey; i++) {
+            if (!lessonData.containsKey(i)) {
+                lessonData.put(i, "");
+            }
+        }
+
         for (Integer i : lessonData.keySet()) {
             View cardView = inflater.inflate(R.layout.lesson_card, layout, false);
 
