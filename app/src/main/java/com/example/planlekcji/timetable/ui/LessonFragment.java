@@ -1,6 +1,7 @@
 package com.example.planlekcji.timetable.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.planlekcji.MainActivity;
@@ -114,7 +117,7 @@ public class LessonFragment extends Fragment {
         }
 
         for (Integer i : lessonData.keySet()) {
-            View cardView = inflater.inflate(R.layout.lesson_card, layout, false);
+            CardView cardView = (CardView) inflater.inflate(R.layout.lesson_card, layout, false);
 
             TextView lessonHoursText = cardView.findViewById(R.id.textViewLessonHours);
             TextView viewLessonData = cardView.findViewById(R.id.textViewLessonData);
@@ -124,6 +127,15 @@ public class LessonFragment extends Fragment {
             lessonHoursText.setText(timeRangeString);
             lessonNumber.setText(String.valueOf(i));
             viewLessonData.setText(lessonData.get(i));
+
+            // Highlight current lesson
+            if (currentLessonIndex == i) {
+                int color = ContextCompat.getColor(requireContext(), R.color.primaryDark);
+                cardView.setCardBackgroundColor(color);
+                lessonHoursText.setTextColor(Color.BLACK);
+                viewLessonData.setTextColor(Color.BLACK);
+                lessonNumber.setTextColor(Color.BLACK);
+            }
 
             layout.addView(cardView);
         }
