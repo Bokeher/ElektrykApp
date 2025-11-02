@@ -81,7 +81,6 @@ public class LessonFragment extends Fragment {
             return;
         }
 
-
         for(Lesson lesson : lessonList) {
             for (int number : lesson.getLessonsNumbers()) {
                 if(lesson instanceof SingleLesson) {
@@ -101,6 +100,7 @@ public class LessonFragment extends Fragment {
         }
 
         for (int i = 1; i <= lessonData.size(); i++) {
+        for (Integer i : lessonData.keySet()) {
             View cardView = inflater.inflate(R.layout.lesson_card, layout, false);
 
             TextView lessonHoursText = cardView.findViewById(R.id.textViewLessonHours);
@@ -121,7 +121,9 @@ public class LessonFragment extends Fragment {
 
         String subjectName = lessonDetails.getSubject().name();
         String schoolClassName = "";
-        if (lessonDetails.getSchoolClass().isPresent()) schoolClassName = lessonDetails.getSchoolClass().get().shortcut();
+        if (lessonDetails.getSchoolClass().isPresent()) {
+            schoolClassName = lessonDetails.getSchoolClass().get().shortcut();
+        }
         String teacherName = lessonDetails.getTeacher();
         String classroomName = lessonDetails.getClassroom();
 
