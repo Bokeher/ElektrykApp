@@ -64,9 +64,6 @@ public class ReplacementsFragment extends Fragment {
         Date[] dates = ReplacementDataDownloader.getNext5Dates(); // holds next 5 non-weekend dates
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault());
 
-        // TODO: Fix random crashes
-        // TODO: Use multiple TextViews and insert a horizontal line between each one
-        // TODO: Display loading when downloading replacements
         int i = 0;
         for (List<Replacement> dayReplacements : replacements) {
             if(dayReplacements.isEmpty()) continue;
