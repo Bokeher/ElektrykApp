@@ -15,6 +15,7 @@ import com.example.planlekcji.utils.ToastUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
@@ -53,7 +54,19 @@ public abstract class ClientService {
 
             if (body != null) bodyContent = body.string();
 
-            JsonElement jsonElement = gson.fromJson(bodyContent, JsonElement.class);
+            if (bodyContent.trim().isEmpty()) {
+                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), "Empty response"));
+                return apiResponseCall;
+            }
+
+            JsonElement jsonElement;
+            try {
+                jsonElement = gson.fromJson(bodyContent, JsonElement.class);
+            } catch (JsonSyntaxException e) {
+                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), "Malformed JSON"));
+                return apiResponseCall;
+            }
+
             if (!response.isSuccessful()) {
                 JsonObject jsonObject = jsonElement.getAsJsonObject();
 
