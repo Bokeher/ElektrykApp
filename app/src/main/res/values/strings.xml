@@ -33,4 +33,5 @@
     <string name="toastErrorMessage_noInternetConnectionRetry">No internet connection. Trying to reconnect…</string>
     <string name="lessonCard_placeholder_lessonNumber" translatable="false">1</string>
     <string name="lessonCard_placeholder_lessonTimeRange" translatable="false">08:00 - 08:45</string>
+    <string name="no_lessons_today">No lessons scheduled for this day</string>
 </resources>

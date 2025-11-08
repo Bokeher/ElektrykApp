@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -102,7 +105,46 @@ public class LessonFragment extends Fragment {
             }
         }
 
-        if (lessonData.isEmpty()){
+        // No lessons scheduled for this day
+        if (lessonData.isEmpty()) {
+            CardView cardView = (CardView) inflater.inflate(R.layout.lesson_card, layout, false);
+            TextView viewLessonData = cardView.findViewById(R.id.textViewLessonData);
+            TextView lessonHoursText = cardView.findViewById(R.id.textViewLessonHours);
+            TextView lessonNumber = cardView.findViewById(R.id.textViewLessonNumber);
+
+            // Hide unnecessary components when there are no classes
+            lessonHoursText.setVisibility(View.GONE);
+            lessonNumber.setVisibility(View.GONE);
+
+            // Display info
+            viewLessonData.setText(R.string.no_lessons_today);
+
+            layout.addView(cardView);
+
+            // Align 'textViewLessonData' to the start of the parent (CardView's ConstraintLayout)
+            // because other views are GONE and no longer constrain its position
+            ConstraintLayout constraintLayout = cardView.findViewById(R.id.constraintLayout);
+            ConstraintSet set = new ConstraintSet();
+            set.clone(constraintLayout);
+
+            set.connect(
+                R.id.textViewLessonData,
+                ConstraintSet.START,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.START
+            );
+
+            // Set top margin
+            int marginTopInDp = 14;
+            int marginTopInPx = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                marginTopInDp,
+                constraintLayout.getResources().getDisplayMetrics()
+            );
+            set.setMargin(R.id.textViewLessonData, ConstraintSet.TOP, marginTopInPx);
+
+            set.applyTo(constraintLayout);
+
             return;
         }
 

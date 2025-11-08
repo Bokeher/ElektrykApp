@@ -26,4 +26,5 @@
     <string name="toastErrorMessage_failedApiConnection">Nie udało się nawiązać połączenia z serwerem.</string>
     <string name="toastErrorMessage_noInternetConnection">Wymagane połączenie z internetem.</string>
     <string name="toastErrorMessage_noInternetConnectionRetry">Brak połączenia z internetem. Ponawianie połączenia.</string>
+    <string name="no_lessons_today">Brak zajęć w tym dniu</string>
 </resources>
