@@ -111,10 +111,12 @@ public class LessonFragment extends Fragment {
             TextView viewLessonData = cardView.findViewById(R.id.textViewLessonData);
             TextView lessonHoursText = cardView.findViewById(R.id.textViewLessonHours);
             TextView lessonNumber = cardView.findViewById(R.id.textViewLessonNumber);
+            View divider = cardView.findViewById(R.id.lessonCard_divider);
 
             // Hide unnecessary components when there are no classes
             lessonHoursText.setVisibility(View.GONE);
             lessonNumber.setVisibility(View.GONE);
+            divider.setVisibility(View.GONE);
 
             // Display info
             viewLessonData.setText(R.string.no_lessons_today);
@@ -135,7 +137,7 @@ public class LessonFragment extends Fragment {
             );
 
             // Set top margin
-            int marginTopInDp = 14;
+            int marginTopInDp = 10;
             int marginTopInPx = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 marginTopInDp,

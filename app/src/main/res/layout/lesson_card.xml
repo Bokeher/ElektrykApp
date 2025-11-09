@@ -38,7 +38,7 @@
 
         <!-- LessonHours -->
         <View
-            android:id="@+id/divider"
+            android:id="@+id/lessonCard_divider"
             android:layout_width="1dp"
             android:layout_height="0dp"
             android:background="?android:attr/listDivider"
