@@ -30,9 +30,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <include layout="@layout/replacement_day_card" />
+                <include
+                    layout="@layout/replacement_day_card"
+                    android:visibility="gone" />
 
-                <include layout="@layout/replacement_day_card" />
+                <include
+                    layout="@layout/replacement_day_card"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/textView_noResults"

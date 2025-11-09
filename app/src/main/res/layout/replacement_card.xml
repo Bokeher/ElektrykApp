@@ -18,12 +18,12 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/textView_teacherName"
+            android:id="@+id/textView_replacementTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/placeholder_replacement_teacherName"
             android:textColor="@color/fontColor"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <TextView
@@ -33,7 +33,7 @@
             android:paddingTop="2dp"
             android:text="@string/placeholder_replacement_replacementDetails"
             android:textColor="@color/fontColor"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

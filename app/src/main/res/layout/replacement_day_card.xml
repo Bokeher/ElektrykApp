@@ -12,6 +12,7 @@
     app:strokeWidth="1dp">
 
     <LinearLayout
+        android:id="@+id/replacementDay_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -34,29 +35,6 @@
             app:autoSizeStepGranularity="1sp"
             app:autoSizeTextType="uniform" />
 
-        <include
-            layout="@layout/replacement_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp" />
-
-        <include
-            layout="@layout/replacement_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp" />
-
-        <include
-            layout="@layout/replacement_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp" />
-
-        <include
-            layout="@layout/replacement_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
