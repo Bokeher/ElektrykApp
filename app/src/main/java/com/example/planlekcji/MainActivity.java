@@ -25,7 +25,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
     private static Context appContext;
-
     private MainViewModel mainViewModel;
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -62,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         mainViewModel.getIsLoadingTimetable().observe(this, isLoading ->
-                progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
         );
 
         // Set adapter
