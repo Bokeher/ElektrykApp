@@ -1,11 +1,14 @@
 package com.example.planlekcji;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -25,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MainViewModel mainViewModel;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,9 +54,20 @@ public class MainActivity extends AppCompatActivity {
         // Set the content view for the main activity.
         setContentView(R.layout.activity_main);
 
-        ViewPager2 viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
+        // Progress bar
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        mainViewModel.getIsLoadingReplacements().observe(this, isLoading ->
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
+        );
+
+        mainViewModel.getIsLoadingTimetable().observe(this, isLoading ->
+                progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
+        );
 
         // Set adapter
+        ViewPager2 viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
+
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2_appContent.setAdapter(adapter);
 
@@ -78,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attach();
 
+        // Add listener to refresh data upon exiting settings
         tabLayout_navigate.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {}

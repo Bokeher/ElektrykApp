@@ -22,14 +22,17 @@ public class MainViewModel extends ViewModel {
 
     // Downloaded data
     private final MutableLiveData<List<List<Replacement>>> replacements = new MutableLiveData<>();
-    private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetableMap = new MutableLiveData<>();
+    private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetable = new MutableLiveData<>();
+
+    // ProgressBar state
+    private final MutableLiveData<Boolean> isLoadingReplacements = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isLoadingTimetable = new MutableLiveData<>(false);
 
     // Retry handlers
     private final RetryHandler replaceRetryHandler = new RetryHandler(this::startReplacementDownload);
-    private final RetryHandler timetableRetryHandler = new RetryHandler(this::startReplacementDownload);
+    private final RetryHandler timetableRetryHandler = new RetryHandler(this::startTimetableDownload);
 
     public MainViewModel() {
-        // Initialize the client
         client = new CKZiUElektrykClient();
     }
 
@@ -47,15 +50,17 @@ public class MainViewModel extends ViewModel {
     }
 
     private void startReplacementDownload() {
+        isLoadingReplacements.postValue(true);
         ReplacementDataDownloader downloader = new ReplacementDataDownloader(client, new ReplacementsDownloadCompleteListener() {
             @Override
             public void onDownloadComplete(List<List<Replacement>> replacementList) {
-                // Update LiveData
-                MainViewModel.this.replacements.postValue(replacementList);
+                replacements.postValue(replacementList);
+                isLoadingReplacements.postValue(false);
             }
 
             @Override
             public void onDownloadFailed() {
+                isLoadingReplacements.postValue(false);
                 replaceRetryHandler.handleRetry();
             }
         });
@@ -63,28 +68,38 @@ public class MainViewModel extends ViewModel {
     }
 
     private void startTimetableDownload() {
+        isLoadingTimetable.postValue(true);
         TimetableDataDownloader downloader = new TimetableDataDownloader(client, new TimetableDownloadCompleteListener() {
             @Override
             public void onDownloadComplete(Map<DayOfWeek, List<Lesson>> timetableMap) {
-                // Update LiveData
-                MainViewModel.this.timetableMap.postValue(timetableMap);
+                timetable.postValue(timetableMap);
+                isLoadingTimetable.postValue(false);
             }
 
             @Override
             public void onDownloadFailed() {
+                isLoadingTimetable.postValue(false);
                 timetableRetryHandler.handleRetry();
             }
         });
-
         new Thread(downloader).start();
     }
 
+    // LiveData getters
     public LiveData<Map<DayOfWeek, List<Lesson>>> getTimetableLiveData() {
-        return timetableMap;
+        return timetable;
     }
 
     public LiveData<List<List<Replacement>>> getReplacementsLiveData() {
         return replacements;
+    }
+
+    public LiveData<Boolean> getIsLoadingReplacements() {
+        return isLoadingReplacements;
+    }
+
+    public LiveData<Boolean> getIsLoadingTimetable() {
+        return isLoadingTimetable;
     }
 
     public CKZiUElektrykClient getClient() {
