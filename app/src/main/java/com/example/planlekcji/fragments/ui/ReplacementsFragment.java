@@ -67,8 +67,8 @@ public class ReplacementsFragment extends Fragment {
         Date[] dates = ReplacementDataDownloader.getNext5Dates(); // holds next 5 non-weekend dates
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault());
 
-        int i = 0;
-        for (List<Replacement> dayReplacements : replacements) {
+        for (int i = 0; i < replacements.size(); i++) {
+            List<Replacement> dayReplacements = replacements.get(i);
             if(dayReplacements.isEmpty()) continue;
 
             CardView dayCard = (CardView) inflater.inflate(R.layout.replacement_day_card, layout, false);
@@ -91,7 +91,6 @@ public class ReplacementsFragment extends Fragment {
             }
 
             layout.addView(dayCard);
-            i++;
         }
     }
 
