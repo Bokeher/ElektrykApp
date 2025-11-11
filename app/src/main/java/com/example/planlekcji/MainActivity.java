@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2_appContent.setAdapter(adapter);
+        viewPager2_appContent.setOffscreenPageLimit(3);
 
         // Disable user input to allow input of timetable ViewPager
         viewPager2_appContent.setUserInputEnabled(false);
