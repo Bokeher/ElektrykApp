@@ -32,8 +32,14 @@ public class SchoolEntriesDownloader implements Runnable {
         timetableService = client.getTimetableService(SchoolEntryType.CLASSROOMS);
         classroomsSchoolEntries = timetableService.getList();
 
+        if (classesSchoolEntries == null) {
+            classesSchoolEntries = new ArrayList<>();
+        }
         if (teachersSchoolEntries == null) {
             teachersSchoolEntries = new ArrayList<>();
+        }
+        if (classroomsSchoolEntries == null) {
+            classroomsSchoolEntries = new ArrayList<>();
         }
 
         classesSchoolEntries.sort(Comparator.comparing(SchoolEntry::shortcut));

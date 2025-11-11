@@ -10,8 +10,11 @@ import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ReplacementDataDownloader implements Runnable {
@@ -38,10 +41,13 @@ public class ReplacementDataDownloader implements Runnable {
 
             replacementType = ReplacementType.CLASSES;
             for (Date date : next5Dates) {
-                List<Replacement> newReplacements = replacementService.getReplacements(replacementType, date)
-                        .stream()
-                        .filter(r -> r.name().equals(token))
-                        .collect(Collectors.toList());
+                List<Replacement> newReplacements = Optional
+                    .ofNullable(replacementService.getReplacements(replacementType, date))
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .filter(r -> Objects.equals(r.name(), token))
+                    .collect(Collectors.toList());
 
                 latestReplacements.add(newReplacements);
             }

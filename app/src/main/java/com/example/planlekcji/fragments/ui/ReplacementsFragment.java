@@ -109,7 +109,7 @@ public class ReplacementsFragment extends Fragment {
 
     private boolean areReplacementsEmpty() {
         for (List<Replacement> dayReplacements: replacements) {
-            if(!dayReplacements.isEmpty()) {
+            if (dayReplacements != null && !dayReplacements.isEmpty()) {
                 return false;
             }
         }
