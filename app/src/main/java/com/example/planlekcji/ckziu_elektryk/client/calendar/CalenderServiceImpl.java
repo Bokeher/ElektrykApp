@@ -1,9 +1,12 @@
 package com.example.planlekcji.ckziu_elektryk.client.calendar;
 
+import com.example.planlekcji.MainActivity;
+import com.example.planlekcji.R;
 import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.ckziu_elektryk.client.common.APIResponseCall;
 import com.example.planlekcji.ckziu_elektryk.client.common.ClientService;
 import com.example.planlekcji.ckziu_elektryk.client.common.Endpoint;
+import com.example.planlekcji.utils.ToastUtils;
 
 import java.util.Optional;
 
@@ -19,7 +22,11 @@ class CalenderServiceImpl extends ClientService implements CalenderService {
         if (!apiResponseCall.hasResponse()) return Optional.empty();
 
         return Optional.ofNullable(apiResponseCall
-                .error(e -> System.err.println("Error occurred: " + e.getMessage()))
+                .error(e -> {
+                    System.err.println("Error occurred: " + e.getMessage());
+                    String errMess = MainActivity.getContext().getString(R.string.toast_errorMessage);
+                    ToastUtils.showToast(MainActivity.getContext(), errMess, false);
+                })
                 .success(successResponse -> gson.fromJson(successResponse.getJsonElement(), Calendar.class))
         );
     }
