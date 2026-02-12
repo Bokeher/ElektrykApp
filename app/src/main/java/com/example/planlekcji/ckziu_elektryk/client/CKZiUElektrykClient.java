@@ -15,7 +15,9 @@ import com.example.planlekcji.ckziu_elektryk.client.timetable.info.TimetableInfo
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class CKZiUElektrykClient {
 
@@ -55,5 +57,9 @@ public class CKZiUElektrykClient {
 
     public ArticleService getArticleService() {
         return articleService;
+    }
+
+    public void setFailedApiConnectionCallback(Consumer<IOException> failedApiConnectionCallback) {
+        this.config.setFailedApiConnectionCallback(failedApiConnectionCallback);
     }
 }

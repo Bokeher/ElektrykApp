@@ -8,12 +8,14 @@ import com.example.planlekcji.MainActivity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 public class Config {
 
     private static Config instance;
 
     private final Properties properties;
+    private Consumer<IOException> failedApiConnectionCallback;
 
     private Config() throws IOException {
         properties = new Properties();
@@ -53,5 +55,13 @@ public class Config {
 
     public String getAPIUrl() {
         return getValue("rest_api_url");
+    }
+
+    public void setFailedApiConnectionCallback(Consumer<IOException> failedApiConnectionCallback) {
+        this.failedApiConnectionCallback = failedApiConnectionCallback;
+    }
+
+    public Consumer<IOException> getFailedApiConnectionCallback() {
+        return failedApiConnectionCallback;
     }
 }
