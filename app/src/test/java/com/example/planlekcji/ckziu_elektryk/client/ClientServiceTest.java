@@ -20,6 +20,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ClientServiceTest {
@@ -127,6 +128,14 @@ public class ClientServiceTest {
     public void shouldSendRequestWhenAPIURLHasNotCorrectServerPortOrIP() {
         given(config.getToken()).willReturn(TestConstants.TOKEN);
         given(config.getAPIUrl()).willReturn("http://localhost:8001/api/v1");
+        given(config.getFailedApiConnectionCallback()).willReturn(e -> {
+            try {
+                throw e;
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+        });
+        given(config.getFailedRouteRespondCallback()).willReturn(e -> System.err.println(e.getMessage()));
 
         ClientServiceStub clientServiceStub = new ClientServiceStub(config);
 

@@ -43,6 +43,12 @@ public class MainViewModel extends ViewModel {
 
             ToastUtils.showToast(context, errorMessage, true);
         });
+
+        client.setFailedRouteRespondCallback(errorResponse -> {
+            System.err.println("Error occurred: " + errorResponse.getMessage());
+            String errMess = MainActivity.getContext().getString(R.string.toast_errorMessage);
+            ToastUtils.showToast(MainActivity.getContext(), errMess, false);
+        });
     }
 
     public void fetchData() {

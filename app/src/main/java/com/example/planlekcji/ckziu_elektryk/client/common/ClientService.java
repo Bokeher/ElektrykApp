@@ -93,7 +93,7 @@ public abstract class ClientService {
         });
     }
 
-    protected @NonNull Consumer<ErrorResponse> printError() {
-        return errorResponse -> System.err.println(errorResponse.getMessage());
+    protected @NonNull Consumer<ErrorResponse> handleError() {
+        return config.getFailedRouteRespondCallback();
     }
 }

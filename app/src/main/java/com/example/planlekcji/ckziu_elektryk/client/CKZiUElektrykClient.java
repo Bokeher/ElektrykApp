@@ -5,6 +5,7 @@ import com.example.planlekcji.ckziu_elektryk.client.article.ArticleServiceFactor
 import com.example.planlekcji.ckziu_elektryk.client.calendar.CalenderService;
 import com.example.planlekcji.ckziu_elektryk.client.calendar.CalenderServiceFactory;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.response.ErrorResponse;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.TimetableService;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementServiceFactory;
@@ -61,5 +62,9 @@ public class CKZiUElektrykClient {
 
     public void setFailedApiConnectionCallback(Consumer<IOException> failedApiConnectionCallback) {
         this.config.setFailedApiConnectionCallback(failedApiConnectionCallback);
+    }
+
+    public void setFailedRouteRespondCallback(Consumer<ErrorResponse> failedRouteRespondCallback) {
+        this.config.setFailedRouteRespondCallback(failedRouteRespondCallback);
     }
 }

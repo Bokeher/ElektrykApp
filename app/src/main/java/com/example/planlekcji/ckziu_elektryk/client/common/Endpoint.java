@@ -14,7 +14,7 @@ public final class Endpoint {
     public static final Endpoint TIMETABLES_TEACHER = new Endpoint("timetables/teachers/{school_entry_shortcut}");
     public static final Endpoint TIMETABLES_CLASSES = new Endpoint("timetables/classes");
     public static final Endpoint TIMETABLES_CLASS = new Endpoint("timetables/classes/{school_entry_shortcut}");
-    public static final Endpoint LATEST_CALENDER = new Endpoint("calenders");
+    public static final Endpoint LATEST_CALENDER = new Endpoint("calendars");
     public static final Endpoint ARTICLES_LIST = new Endpoint("articles?page={page}");
     public static final Endpoint ARTICLE_BY_ID = new Endpoint("articles/{id}?photo_size={photo_size}");
 

@@ -36,7 +36,7 @@ public abstract class AbstractTimetableService extends ClientService implements 
 
         if (!apiResponseCall.hasResponse()) return Collections.emptyList();
 
-        return apiResponseCall.error(printError())
+        return apiResponseCall.error(handleError())
                 .success(successResponse -> {
                     List<SchoolEntry> schoolEntries = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public abstract class AbstractTimetableService extends ClientService implements 
 
         if (!apiResponseCall.hasResponse()) return Collections.emptyMap();
 
-        return apiResponseCall.error(printError())
+        return apiResponseCall.error(handleError())
                 .success(successResponse -> {
                     Map<DayOfWeek, List<Lesson>> timetable = new LinkedHashMap<>();
                     JsonObject jsonObject = successResponse.getJsonElement().getAsJsonObject();
