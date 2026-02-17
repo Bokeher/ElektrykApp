@@ -30,7 +30,7 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
         if (!apiResponseCall.hasResponse())
             return Page.empty();
 
-        return apiResponseCall.error(printError())
+        return apiResponseCall.error(handleError())
                 .success(successResponse -> {
                     PaginatedSuccessResponse paginatedSuccessResponse = (PaginatedSuccessResponse) successResponse;
 
@@ -54,7 +54,7 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
         try {
             return new URL(text);
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -70,7 +70,7 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
         if (!apiResponseCall.hasResponse()) return Optional.empty();
 
         return Optional.ofNullable(apiResponseCall
-                .error(printError())
+                .error(handleError())
                 .success(successResponse -> {
                     JsonObject jsonObject = successResponse.getJsonElement().getAsJsonObject();
 

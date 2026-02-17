@@ -1,5 +1,7 @@
 package com.example.planlekcji;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -13,6 +15,7 @@ import com.example.planlekcji.replacements.ReplacementDataDownloader;
 import com.example.planlekcji.timetable.model.DayOfWeek;
 import com.example.planlekcji.utils.RetryHandler;
 import com.example.planlekcji.timetable.TimetableDataDownloader;
+import com.example.planlekcji.utils.ToastUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,18 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel() {
         client = new CKZiUElektrykClient();
+        client.setFailedApiConnectionCallback(e -> {
+            Context context = MainActivity.getContext();
+            String errorMessage = context.getString(R.string.toastErrorMessage_failedApiConnection);
+
+            ToastUtils.showToast(context, errorMessage, true);
+        });
+
+        client.setFailedRouteRespondCallback(errorResponse -> {
+            System.err.println("Error occurred: " + errorResponse.getMessage());
+            String errMess = MainActivity.getContext().getString(R.string.toast_errorMessage);
+            ToastUtils.showToast(MainActivity.getContext(), errMess, false);
+        });
     }
 
     public void fetchData() {
