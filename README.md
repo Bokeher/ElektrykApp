@@ -70,8 +70,8 @@ The application relies on a backend API developed by **timsixth**, hosted in a *
 
 ## 👥 Contributions
 
-- Bokeher – Android application (UI, app logic, integration layer)
-- timsixth – Backend API + client/server communication layer
+- [Bokeher](https://github.com/Bokeher) – Android application (UI, app logic, integration layer)  
+- [timsixth](https://github.com/timsixth) – Backend API + client/server communication layer  
 
 ---
 
