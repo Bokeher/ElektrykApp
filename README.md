@@ -3,7 +3,6 @@
 ElektrykApp is an Android application designed for CKZiU "Elektryk" students and teachers.  
 It provides a fast and convenient way to check timetables and substitutions without relying on the official school website.
 
----
 
 ## 📸 Preview
 
@@ -15,7 +14,6 @@ It provides a fast and convenient way to check timetables and substitutions with
 The official school website is not optimized for quick mobile access and can be inconvenient to use.  
 This app was created to deliver a cleaner, faster, and more user-friendly experience for browsing timetables and substitutions.
 
----
 
 ## 🚀 Features
 
@@ -25,14 +23,12 @@ This app was created to deliver a cleaner, faster, and more user-friendly experi
 - Customize displayed timetable (class/teacher/classroom)
 - Simple and mobile-friendly UI
 
----
 
 ## 🛠 Tech Stack
 
 - Android (Java)
 - Gradle
 
----
 
 ## ⚙️ Setup
 
@@ -54,7 +50,6 @@ This app was created to deliver a cleaner, faster, and more user-friendly experi
 
 5. Run the app on an emulator or physical device
 
----
 
 ## 🔌 API Dependency
 
@@ -63,22 +58,18 @@ The application relies on a backend API developed by **timsixth**, hosted in a *
 > ⚠️ Full functionality requires access to this API.  
 > Without valid credentials and endpoint, the app will not be able to fetch real data.
 
----
-
 ## 📂 Project Status
 
 - ✅ Mobile application is fully functional
 - ⚠️ Requires private API for real data
 - 🔒 Backend is not included in this repository
 
----
 
 ## 👥 Contributions
 
 - [Bokeher](https://github.com/Bokeher) – Android application (UI, app logic, integration layer)  
-- [timsixth](https://github.com/timsixth) – Backend API + client/server communication layer  
+- [timsixth](https://github.com/timsixth) – Backend API + client/server communication layer
 
----
 
 ## 📌 Notes
 
