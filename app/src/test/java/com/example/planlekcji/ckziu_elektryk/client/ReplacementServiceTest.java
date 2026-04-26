@@ -2,55 +2,49 @@ package com.example.planlekcji.ckziu_elektryk.client;
 
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.example.planlekcji.ckziu_elektryk.client.replacments.Replacement;
-import com.example.planlekcji.ckziu_elektryk.client.replacments.ReplacementService;
-import com.example.planlekcji.ckziu_elektryk.client.stubs.TestConstants;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementRequest;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementType;
+import com.example.planlekcji.ckziu_elektryk.client.stubs.CKZiUElektrykClientStubFactory;
+import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.List;
 
 public class ReplacementServiceTest {
 
     private ReplacementService replacementService;
 
     @Before
-    public void init() {
-        Config config = mock(Config.class);
-
-        when(config.getAPIUrl()).thenReturn(TestConstants.URL);
-        when(config.getToken()).thenReturn(TestConstants.TOKEN);
-
-        CKZiUElektrykClient client = new CKZiUElektrykClient(config);
+    public void init() throws IOException {
+        CKZiUElektrykClient client = CKZiUElektrykClientStubFactory.createClient();
 
         replacementService = client.getReplacementService();
     }
 
     @Test
     public void shouldGetLatestReplacement() {
-        Optional<Replacement> latestReplacement = replacementService.getLatestReplacement();
+        List<Replacement> replacements = replacementService.getLatestReplacements();
 
-        if (latestReplacement.isPresent()) {
-            Replacement replacement = latestReplacement.get();
-
-            assertNotNull(replacement.content());
-            assertNotNull(replacement.fileName());
-        }
+        assertNotNull(replacements);
     }
 
     @Test
-    public void shouldGetReplacementByFileName() {
-        Optional<Replacement> latestReplacement = replacementService.getReplacement("GRAFIK-NIEOBECNOSCI-NAUCZYCIELI-25_v1-pazdziernika-2024.pdf");
+    public void shouldGetLatestReplacementWithModeClasses() {
+        List<Replacement> replacements = replacementService.getLatestReplacements(ReplacementType.CLASSES);
 
-        if (latestReplacement.isPresent()) {
-            Replacement replacement = latestReplacement.get();
+        assertNotNull(replacements);
+    }
 
-            assertNotNull(replacement.content());
-            assertNotNull(replacement.fileName());
-        }
+    @Test
+    public void shouldGetLatestReplacementWithModeClassesAndDate() {
+        List<Replacement> replacements = replacementService.getReplacements(ReplacementType.CLASSES, DateUtil.parseDate(ReplacementRequest.REPLACEMENT_DATE_PATTERN, "2025-09-09"));
+
+        assertNotNull(replacements);
     }
 }

@@ -71,7 +71,21 @@ public class SettingsFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         String token = sharedPref.getString(sharedPreferencesToken, "");
-        spinner.setSelection(adapter.getPosition(token));
+        int selectedPosition = adapter.getPosition(token);
+
+        if (selectedPosition < 0 && !schoolEntries.isEmpty()) {
+            SchoolEntry defaultEntry = schoolEntries.get(0);
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(sharedPreferencesToken, defaultEntry.shortcut());
+            editor.apply();
+
+            selectedPosition = 0;
+        }
+
+        if (selectedPosition >= 0) {
+            spinner.setSelection(selectedPosition);
+        }
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -146,5 +160,31 @@ public class SettingsFragment extends Fragment {
         classesSchoolEntries = spinnersDataDownloader.getClassesSchoolEntries();
         teachersSchoolEntries = spinnersDataDownloader.getTeachersSchoolEntries();
         classroomsSchoolEntries = spinnersDataDownloader.getClassroomsSchoolEntries();
+
+        ensurePreviewDefaults();
+    }
+
+    private void ensurePreviewDefaults() {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        boolean changed = false;
+
+        if (!sharedPref.contains(getString(R.string.classTokenKey)) && !classesSchoolEntries.isEmpty()) {
+            editor.putString(getString(R.string.classTokenKey), classesSchoolEntries.get(0).shortcut());
+            changed = true;
+        }
+
+        if (!sharedPref.contains(getString(R.string.teacherTokenKey)) && !teachersSchoolEntries.isEmpty()) {
+            editor.putString(getString(R.string.teacherTokenKey), teachersSchoolEntries.get(0).shortcut());
+            changed = true;
+        }
+
+        if (!sharedPref.contains(getString(R.string.classroomTokenKey)) && !classroomsSchoolEntries.isEmpty()) {
+            editor.putString(getString(R.string.classroomTokenKey), classroomsSchoolEntries.get(0).shortcut());
+            changed = true;
+        }
+
+        if (changed) {
+            editor.apply();
+        }
     }
 }

@@ -1,16 +1,22 @@
 package com.example.planlekcji;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
+import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.fragments.model.ViewPagerAdapter;
 import com.example.planlekcji.utils.ToastUtils;
 
@@ -20,9 +26,9 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
     private static Context appContext;
-
     private MainViewModel mainViewModel;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Check for internet connection; exit the app if not connected.
-        if (!isOnline()) {
+        if (!Config.getOrCreateConfig().isPreviewMode() && !isOnline()) {
             String errorMessage = getString(R.string.toastErrorMessage_noInternetConnection);
             ToastUtils.showToast(this, errorMessage, true);
         }
@@ -48,11 +54,23 @@ public class MainActivity extends AppCompatActivity {
         // Set the content view for the main activity.
         setContentView(R.layout.activity_main);
 
-        ViewPager2 viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
+        // Progress bar
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        mainViewModel.getIsLoadingReplacements().observe(this, isLoading ->
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
+        );
+
+        mainViewModel.getIsLoadingTimetable().observe(this, isLoading ->
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE)
+        );
 
         // Set adapter
+        ViewPager2 viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
+
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager2_appContent.setAdapter(adapter);
+        viewPager2_appContent.setOffscreenPageLimit(3);
 
         // Disable user input to allow input of timetable ViewPager
         viewPager2_appContent.setUserInputEnabled(false);
@@ -76,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attach();
 
+        // Add listener to refresh data upon exiting settings
         tabLayout_navigate.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {}
@@ -102,4 +121,31 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
+
+    public static SchoolEntryType getTimetableType() {
+        Context context = MainActivity.getContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
+
+        // 0 - classes, 1 - teachers, 2 - classrooms
+        int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
+
+        return SchoolEntryType.values()[typeOfTimetable];
+    }
+
+    public static String getToken(SchoolEntryType timetableType) {
+        Context context = MainActivity.getContext();
+        SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
+
+        String tokenType;
+        if (timetableType == SchoolEntryType.CLASSES) {
+            tokenType = context.getString(R.string.classTokenKey);
+        } else if(timetableType == SchoolEntryType.TEACHERS) {
+            tokenType = context.getString(R.string.teacherTokenKey);
+        } else {
+            tokenType = context.getString(R.string.classroomTokenKey);
+        }
+
+        return sharedPreferences.getString(tokenType, "");
+    }
+
 }

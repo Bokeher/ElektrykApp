@@ -31,4 +31,11 @@
     <string name="toastErrorMessage_failedApiConnection">Unable to connect to the server.</string>
     <string name="toastErrorMessage_noInternetConnection">Internet connection is required.</string>
     <string name="toastErrorMessage_noInternetConnectionRetry">No internet connection. Trying to reconnect…</string>
+    <string name="lessonCard_placeholder_lessonNumber" translatable="false">1</string>
+    <string name="lessonCard_placeholder_lessonTimeRange" translatable="false">08:00 - 08:45</string>
+    <string name="no_lessons_today">No lessons scheduled for this day</string>
+    <string name="placeholder_replacement_dayTitle" translatable="false">[P]2025-11-10 Poniedziałek</string>
+    <string name="placeholder_replacement_teacherName" translatable="false">[P]Adam Nowak</string>
+    <string name="placeholder_replacement_replacementDetails" translatable="false">[P]Cały Dzień | Nieobecność</string>
+    <string name="toast_errorMessage">An error occurred. Please try again later.</string>
 </resources>

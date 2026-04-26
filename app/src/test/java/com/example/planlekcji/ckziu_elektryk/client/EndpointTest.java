@@ -12,26 +12,20 @@ public class EndpointTest {
 
     @Test
     public void shouldCreateEndpointWithPlaceholders() {
-        Endpoint endpoint = Endpoint.REPLACEMENTS_BY_FILE_NAME
-                .withPlaceholders(Map.of("{file_name}", "filename"));
+        Endpoint endpoint = Endpoint.TIMETABLES_CLASS
+                .withPlaceholders(Map.of("{school_entry_shortcut}", "filename"));
 
-        assertEquals("replacements/filename", endpoint.getName());
+        assertEquals("timetables/classes/filename", endpoint.getName());
     }
 
     @Test
     public void shouldCreateEndpointWithPlaceholdersWithReplacingTwice() {
-        Endpoint.REPLACEMENTS_BY_FILE_NAME
-                .withPlaceholders(Map.of("{file_name}", "filename"));
+        Endpoint.TIMETABLES_CLASS
+                .withPlaceholders(Map.of("{school_entry_shortcut}", "filename"));
 
-        Endpoint endpoint2 = Endpoint.REPLACEMENTS_BY_FILE_NAME
-                .withPlaceholders(Map.of("{file_name}", "filename2"));
+        Endpoint endpoint2 = Endpoint.TIMETABLES_CLASS
+                .withPlaceholders(Map.of("{school_entry_shortcut}", "filename2"));
 
-        assertEquals("replacements/filename2", endpoint2.getName());
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldCreateEndpointWithoutPlaceholders() {
-        Endpoint.LATEST_REPLACEMENTS
-                .withPlaceholders(Map.of("{file_name}", "filename"));
+        assertEquals("timetables/classes/filename2", endpoint2.getName());
     }
 }

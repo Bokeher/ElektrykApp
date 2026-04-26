@@ -17,6 +17,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:scrollbars="none"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -29,16 +30,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/editText_searchBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:autofillHints="searchQuery"
-                    android:ems="10"
-                    android:hint="@string/searchHint_searchBar"
-                    android:inputType="textPersonName" />
+                <include
+                    layout="@layout/replacement_day_card"
+                    android:visibility="gone" />
+
+                <include
+                    layout="@layout/replacement_day_card"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/textView_noResults"
@@ -53,14 +51,6 @@
                     android:textStyle="bold"
                     android:visibility="gone" />
 
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="?android:attr/listDivider" />
-
                 <TextView
                     android:id="@+id/textView_replacements"
                     android:layout_width="match_parent"
@@ -70,7 +60,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:scrollbars="vertical"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

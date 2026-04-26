@@ -1,21 +1,19 @@
 package com.example.planlekcji.ckziu_elektryk.client.common;
 
-import android.content.Context;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
-import com.example.planlekcji.MainActivity;
-import com.example.planlekcji.R;
 import com.example.planlekcji.ckziu_elektryk.client.Config;
+import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.response.ErrorResponse;
+import com.example.planlekcji.ckziu_elektryk.client.response.PaginatedSuccessResponse;
 import com.example.planlekcji.ckziu_elektryk.client.response.SuccessResponse;
-import com.example.planlekcji.utils.ToastUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import okhttp3.OkHttpClient;
@@ -26,7 +24,7 @@ import okhttp3.ResponseBody;
 public abstract class ClientService {
 
     private final OkHttpClient httpClient;
-    private final Gson gson;
+    protected final Gson gson;
     private final Config config;
 
     protected ClientService(Config config) {
@@ -35,7 +33,7 @@ public abstract class ClientService {
         this.gson = new Gson();
     }
 
-    protected APIResponseCall getData(@NonNull Endpoint endpoint) {
+    protected APIResponseCall getData(@NonNull Endpoint endpoint, BiFunction<Integer, JsonElement, SuccessResponse> successResponseBiFunction) {
         Request request = new Request.Builder()
                 .addHeader("Authorization", config.getToken())
                 .url(config.getAPIUrl() + "/" + endpoint.getName())
@@ -46,35 +44,56 @@ public abstract class ClientService {
 
         try (Response response = this.httpClient.newCall(request).execute()) {
             ResponseBody body = response.body();
-            String bodyContent = "";
 
-            if (body != null) bodyContent = body.string();
-
-            JsonElement jsonElement = gson.fromJson(bodyContent, JsonElement.class);
-            if (!response.isSuccessful()) {
-                JsonObject jsonObject = jsonElement.getAsJsonObject();
-
-                if (jsonObject.has("message")) {
-                    bodyContent = jsonObject.get("message").getAsString();
-                }
-
-                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), bodyContent));
-
+            if (body == null) {
+                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), "Empty response"));
                 return apiResponseCall;
             }
 
-            apiResponseCall.setSuccessResponse(new SuccessResponse(response.code(), jsonElement));
-        } catch (IOException exception) {
-            Context context = MainActivity.getContext();
-            String errorMessage = context.getString(R.string.toastErrorMessage_failedApiConnection);
+            JsonElement jsonElement;
+            try {
+                jsonElement = gson.fromJson(body.charStream(), JsonElement.class);
+            } catch (JsonSyntaxException e) {
+                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), "Parsing error: " + e.getMessage()));
+                return apiResponseCall;
+            }
 
-            ToastUtils.showToast(context, errorMessage, true);
+            if (!response.isSuccessful()) {
+                String errorMessage = "Unknown error";
+                try {
+                    if (jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has("message")) {
+                        errorMessage = jsonElement.getAsJsonObject().get("message").getAsString();
+                    }
+                } catch (Exception e) {
+                    errorMessage = "Error code: " + response.code();
+                }
+
+                apiResponseCall.setErrorResponse(new ErrorResponse(response.code(), errorMessage));
+                return apiResponseCall;
+            }
+
+            apiResponseCall.setSuccessResponse(successResponseBiFunction.apply(response.code(), jsonElement));
+        } catch (IOException exception) {
+            config.getFailedApiConnectionCallback().accept(exception);
         }
 
         return apiResponseCall;
     }
 
-    protected @NonNull Consumer<ErrorResponse> printError() {
-        return errorResponse -> Log.e("error", errorResponse.getMessage());
+    protected APIResponseCall getData(@NonNull Endpoint endpoint) {
+        return getData(endpoint, SuccessResponse::new);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected APIResponseCall getDataWithPagination(@NonNull Endpoint endpoint) {
+        return getData(endpoint, (code, jsonElement) -> {
+            Page<LinkedTreeMap<String, Object>> page = gson.fromJson(jsonElement, Page.class);
+
+            return new PaginatedSuccessResponse(code, jsonElement, page);
+        });
+    }
+
+    protected @NonNull Consumer<ErrorResponse> handleError() {
+        return config.getFailedRouteRespondCallback();
     }
 }

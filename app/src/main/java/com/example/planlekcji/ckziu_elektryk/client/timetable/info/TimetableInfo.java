@@ -1,9 +1,16 @@
 package com.example.planlekcji.ckziu_elektryk.client.timetable.info;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import com.example.planlekcji.ckziu_elektryk.client.utils.DateUtil;
 
-public record TimetableInfo(String applyAt, LocalDate generatedAt) {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-    public static final DateTimeFormatter GENERATED_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+public record TimetableInfo(Date applyAt, String info) {
+
+    public static final SimpleDateFormat APPLY_AT_FORMATTER = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+
+    public static Date parseDate(String text) {
+        return DateUtil.parseDate(APPLY_AT_FORMATTER, text);
+    }
 }

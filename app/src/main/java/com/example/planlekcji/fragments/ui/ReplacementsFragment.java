@@ -2,43 +2,43 @@ package com.example.planlekcji.fragments.ui;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.planlekcji.MainViewModel;
 import com.example.planlekcji.R;
-import com.example.planlekcji.utils.BoyerMooreSearch;
-import com.example.planlekcji.utils.DelayedSearchTextWatcher;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
+import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementChange;
+import com.example.planlekcji.replacements.ReplacementDataDownloader;
 
-import java.util.HashSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 public class ReplacementsFragment extends Fragment {
-    private View view;
-    private List<String> replacements;
+    private List<List<Replacement>> replacements;
     private MainViewModel mainViewModel;
-
-    // used for searching
-    private List<String> replacementsWithoutHtml;
-    private HashSet<Integer> replacementIdsToShow; // Ids of replacements that are supposed to be shown after being filtered by searching
+    private LayoutInflater inflater;
+    private LinearLayout layout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_replacements, container, false);
-        mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        View view = inflater.inflate(R.layout.fragment_replacements, container, false);
+        this.mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+        this.inflater = inflater;
+        this.layout = view.findViewById(R.id.linearLayout_replacements);
 
         observeAndHandleReplacementsLiveData();
-        mainViewModel.fetchReplacements();
-
-        setEventListenerToSearchBar();
+        this.mainViewModel.fetchReplacements();
 
         return view;
     }
@@ -47,67 +47,73 @@ public class ReplacementsFragment extends Fragment {
         mainViewModel.getReplacementsLiveData().observe(getViewLifecycleOwner(), newReplacements -> {
             replacements = newReplacements;
 
-            // Prepare replacements without html for searching (also remove multiple spaces caused by removing html tags)
-            replacementsWithoutHtml = replacements.stream()
-                    .map(s -> s.replaceAll("<[^>]*>", "").replaceAll("\\s+", " "))
-                    .collect(Collectors.toList());
-
             updateReplacements();
         });
     }
 
-    private void setEventListenerToSearchBar() {
-        EditText searchBar = view.findViewById(R.id.editText_searchBar);
-
-        searchBar.addTextChangedListener(new DelayedSearchTextWatcher(query -> {
-            replacementIdsToShow = searchReplacements(query.toLowerCase());
-            updateReplacements();
-        }));
-    }
-
     private void updateReplacements() {
-        TextView textFieldReplacements = view.findViewById(R.id.textView_replacements);
-        EditText searchBar = view.findViewById(R.id.editText_searchBar);
-        View divider = view.findViewById(R.id.divider);
-        TextView textView_noResults = view.findViewById(R.id.textView_noResults);
+        layout.removeAllViews();
 
-        if(replacements == null || replacements.isEmpty()) {
-            searchBar.setVisibility(View.GONE);
-            divider.setVisibility(View.GONE);
+        if(replacements == null || replacements.isEmpty() || areReplacementsEmpty()) {
+            CardView dayCard = (CardView) inflater.inflate(R.layout.replacement_day_card, layout, false);
+            TextView dayTitle = dayCard.findViewById(R.id.textView_dayTitle);
+            dayTitle.setText(R.string.no_replacements);
 
-            textFieldReplacements.setText(getString(R.string.no_replacements));
+            layout.addView(dayCard);
+
             return;
         }
 
-        searchBar.setVisibility(View.VISIBLE);
-        divider.setVisibility(View.VISIBLE);
+        Date[] dates = ReplacementDataDownloader.getNext5Dates(); // holds next 5 non-weekend dates
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd EEEE", Locale.getDefault());
 
-        if (replacementIdsToShow == null || replacementIdsToShow.isEmpty()) {
-            textView_noResults.setVisibility(replacementIdsToShow == null ? View.GONE : View.VISIBLE);
-            textFieldReplacements.setText(Html.fromHtml(String.join("<br><br>", replacements), Html.FROM_HTML_MODE_LEGACY));
-            return;
+        for (int i = 0; i < replacements.size(); i++) {
+            List<Replacement> dayReplacements = replacements.get(i);
+            if(dayReplacements.isEmpty()) continue;
+
+            CardView dayCard = (CardView) inflater.inflate(R.layout.replacement_day_card, layout, false);
+            LinearLayout dayCardLayout = dayCard.findViewById(R.id.replacementDay_layout);
+
+            TextView dayTitle = dayCard.findViewById(R.id.textView_dayTitle);
+            dayTitle.setText(sdf.format(dates[i]));
+
+            for (Replacement replacement : dayReplacements) {
+                CardView replacementCard = (CardView) inflater.inflate(R.layout.replacement_card, dayCardLayout, false);
+                TextView replacementTitle = replacementCard.findViewById(R.id.textView_replacementTitle);
+                TextView replacementDetails = replacementCard.findViewById(R.id.textView_replacementDetails);
+
+                replacementTitle.setText(replacement.name());
+
+                StringBuilder details = getReplacementDetails(replacement);
+                replacementDetails.setText(details.toString());
+
+                dayCardLayout.addView(replacementCard);
+            }
+
+            layout.addView(dayCard);
         }
-
-        List<String> filteredReplacements = replacements.stream()
-                .filter(rep -> replacementIdsToShow.contains(replacements.indexOf(rep)))
-                .collect(Collectors.toList());
-
-        textFieldReplacements.setText(Html.fromHtml(String.join("<br><br>", filteredReplacements), Html.FROM_HTML_MODE_LEGACY));
-        textView_noResults.setVisibility(View.GONE);
     }
 
-    private HashSet<Integer> searchReplacements(String searchingKey) {
-        if (searchingKey.isEmpty()) return null;
+    private static @NonNull StringBuilder getReplacementDetails(Replacement replacement) {
+        List<ReplacementChange> changes = replacement.changes();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ReplacementChange change : changes) {
+            stringBuilder.append(change.period()).append(" | ").append(change.info()).append("\n");
+        }
 
-        BoyerMooreSearch boyerMooreSearch = new BoyerMooreSearch();
-        HashSet<Integer> replacementIds = new HashSet<>();
+        if (stringBuilder.length() > 0 && stringBuilder.charAt(stringBuilder.length() - 1) == '\n') {
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+        return stringBuilder;
+    }
 
-        for (int i = 0; i < replacementsWithoutHtml.size(); i++) {
-            if (boyerMooreSearch.search(replacementsWithoutHtml.get(i).toLowerCase(), searchingKey)) {
-                replacementIds.add(i);
+    private boolean areReplacementsEmpty() {
+        for (List<Replacement> dayReplacements: replacements) {
+            if (dayReplacements != null && !dayReplacements.isEmpty()) {
+                return false;
             }
         }
 
-        return replacementIds;
+        return true;
     }
 }
