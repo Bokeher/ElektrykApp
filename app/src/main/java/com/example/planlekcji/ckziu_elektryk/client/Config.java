@@ -12,6 +12,8 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 public class Config {
+    private static final String MAIN_PROPERTIES_FILE = "app.properties";
+    private static final String EXAMPLE_PROPERTIES_FILE = "app.example.properties";
 
     private static Config instance;
 
@@ -25,10 +27,19 @@ public class Config {
         Context context = MainActivity.getContext();
 
         if (context != null) {
-            InputStream inputStream = context.getAssets().open("app.properties");
-            properties.load(inputStream);
+            try (InputStream inputStream = openPropertiesFile(context)) {
+                properties.load(inputStream);
+            }
         }
 
+    }
+
+    private InputStream openPropertiesFile(Context context) throws IOException {
+        try {
+            return context.getAssets().open(MAIN_PROPERTIES_FILE);
+        } catch (IOException ignored) {
+            return context.getAssets().open(EXAMPLE_PROPERTIES_FILE);
+        }
     }
 
     public static Config getOrCreateConfig() {
@@ -57,6 +68,10 @@ public class Config {
 
     public String getAPIUrl() {
         return getValue("rest_api_url");
+    }
+
+    public boolean isPreviewMode() {
+        return Boolean.parseBoolean(getValue("preview_mode"));
     }
 
     public void setFailedApiConnectionCallback(Consumer<IOException> failedApiConnectionCallback) {

@@ -2,11 +2,13 @@ package com.example.planlekcji.replacements;
 
 import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
+import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementService;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.ReplacementType;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
+import com.example.planlekcji.preview.PreviewDataStore;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,17 +30,22 @@ public class ReplacementDataDownloader implements Runnable {
 
     @Override
     public void run() {
+        SchoolEntryType timetableType = MainActivity.getTimetableType();
+        String token = MainActivity.getToken(timetableType);
+
+        if (Config.getOrCreateConfig().isPreviewMode()) {
+            listener.onDownloadComplete(PreviewDataStore.getReplacements(timetableType, token));
+            return;
+        }
+
         ReplacementService replacementService = client.getReplacementService();
 
         Date[] next5Dates = getNext5Dates();
-        SchoolEntryType timetableType = MainActivity.getTimetableType();
 
         List<List<Replacement>> latestReplacements = new ArrayList<>();
 
         ReplacementType replacementType;
         if (timetableType == SchoolEntryType.CLASSES) {
-            String token = MainActivity.getToken(MainActivity.getTimetableType());
-
             replacementType = ReplacementType.CLASSES;
             for (Date date : next5Dates) {
                 List<Replacement> newReplacements = Optional

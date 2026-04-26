@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
+import com.example.planlekcji.ckziu_elektryk.client.Config;
 import com.example.planlekcji.fragments.model.ViewPagerAdapter;
 import com.example.planlekcji.utils.ToastUtils;
 
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Check for internet connection; exit the app if not connected.
-        if (!isOnline()) {
+        if (!Config.getOrCreateConfig().isPreviewMode() && !isOnline()) {
             String errorMessage = getString(R.string.toastErrorMessage_noInternetConnection);
             ToastUtils.showToast(this, errorMessage, true);
         }
