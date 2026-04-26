@@ -26,7 +26,8 @@ This app was created to deliver a cleaner, faster, and more user-friendly experi
 
 ## 🛠 Tech Stack
 
-- Android (Java)
+- Android
+- Java
 - Gradle
 
 
@@ -36,39 +37,41 @@ This app was created to deliver a cleaner, faster, and more user-friendly experi
    ```bash
    git clone https://github.com/Bokeher/ElektrykApp.git
    ```
+2. Open the project in Android Studio.
+3. Run the app on an emulator or physical device.
 
-2. Open the project in **Android Studio**
+The project can run out of the box in preview mode using local demo data.
 
-3. Create a configuration file `app.properties` based on:
-   ```
-   app/src/main/assets/app.example.properties
-   ```
+If you want to use real backend data instead:
 
-4. Provide required values:
-    - `token`
-    - `rest_api_url`
-
-5. Run the app on an emulator or physical device
+1. Create `app/src/main/assets/app.properties` based on `app/src/main/assets/app.example.properties`.
+2. Set the following values:
+   - `preview_mode=false`
+   - `token`
+   - `rest_api_url`
+3. Run the app again.
 
 
 ## 🔌 API Dependency
 
 The application relies on a backend API developed by **timsixth**, hosted in a **private repository**.
 
-> ⚠️ Full functionality requires access to this API.  
-> Without valid credentials and endpoint, the app will not be able to fetch real data.
+> Real-time data requires access to this API.  
+> Without valid credentials and endpoint, the app can still run in preview mode with local data.
+
 
 ## 📂 Project Status
 
-- ✅ Mobile application is fully functional
-- ⚠️ Requires private API for real data
-- 🔒 Backend is not included in this repository
+- Mobile application is fully functional
+- Preview mode allows the project to build and run without the private API
+- Private API access is still required for real data
+- Backend is not included in this repository
 
 
 ## 👥 Contributions
 
-- [Bokeher](https://github.com/Bokeher) – Android application (UI, app logic, integration layer)  
-- [timsixth](https://github.com/timsixth) – Backend API + client/server communication layer
+- [Bokeher](https://github.com/Bokeher) – Android application, UI, app logic, and integration layer
+- [timsixth](https://github.com/timsixth) – Backend API and client/server communication layer
 
 
 ## 📌 Notes
