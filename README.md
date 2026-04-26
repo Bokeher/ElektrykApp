@@ -5,6 +5,11 @@ It provides a fast and convenient way to check timetables and substitutions with
 
 ---
 
+## 📸 Preview
+
+<img width="1200" alt="ElektrykApp_Preview" src="https://github.com/user-attachments/assets/d92809fd-0a38-4357-b810-b4e2dd94201b" />
+
+
 ## 💡 Why this project?
 
 The official school website is not optimized for quick mobile access and can be inconvenient to use.  
