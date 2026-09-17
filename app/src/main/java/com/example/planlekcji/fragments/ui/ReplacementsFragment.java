@@ -110,6 +110,7 @@ public class ReplacementsFragment extends Fragment {
                                 statusOrTeacher = parts[1].trim();
                             }
 
+                            subjectName = capitalizeSubject(subjectName);
                             replacementTitle.setText(subjectName);
                             if (!statusOrTeacher.isEmpty()) {
                                 replacementDetails.setText(getString(R.string.replacement_details_format, lessonText, statusOrTeacher));
@@ -118,7 +119,7 @@ public class ReplacementsFragment extends Fragment {
                             }
                         } else {
                             replacementTitle.setText(replacement.name());
-                            replacementDetails.setText(getString(R.string.replacement_details_format, lessonText, change.info()));
+                            replacementDetails.setText(getString(R.string.replacement_details_format, lessonText, formatReplacementInfo(change.info())));
                         }
 
                         dayCardLayout.addView(replacementCard);
@@ -144,5 +145,37 @@ public class ReplacementsFragment extends Fragment {
         if (period == null) return false;
         String normalized = period.trim().toLowerCase(Locale.ROOT);
         return normalized.contains("cały dzień") || normalized.contains("caly dzien");
+    }
+
+    private String formatReplacementInfo(String info) {
+        if (info == null) {
+            return "";
+        }
+        if (info.contains(" - ")) {
+            String[] parts = info.split(" - ", 2);
+            return capitalizeSubject(parts[0].trim()) + " - " + parts[1].trim();
+        }
+        return capitalizeSubject(info);
+    }
+
+    private String capitalizeSubject(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        char[] chars = text.toCharArray();
+        boolean capitalizeNext = true;
+
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if (c == ':') {
+                capitalizeNext = true;
+            } else if (capitalizeNext && Character.isLetter(c)) {
+                chars[i] = Character.toUpperCase(c);
+                capitalizeNext = false;
+            }
+        }
+
+        return new String(chars);
     }
 }
