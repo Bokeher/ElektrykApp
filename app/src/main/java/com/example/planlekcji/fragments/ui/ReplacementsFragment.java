@@ -89,7 +89,15 @@ public class ReplacementsFragment extends Fragment {
                         TextView replacementTitle = replacementCard.findViewById(R.id.textView_replacementTitle);
                         TextView replacementDetails = replacementCard.findViewById(R.id.textView_replacementDetails);
 
-                        String lessonText = getString(R.string.lesson_label, change.period());
+                        String period = change.period();
+                        String lessonText;
+                        if (period == null) {
+                            lessonText = "";
+                        } else if (isAllDay(period)) {
+                            lessonText = period;
+                        } else {
+                            lessonText = getString(R.string.lesson_label, period);
+                        }
 
                         if (isClassType) {
                             String info = change.info();
@@ -130,5 +138,11 @@ public class ReplacementsFragment extends Fragment {
         }
 
         return true;
+    }
+
+    private boolean isAllDay(String period) {
+        if (period == null) return false;
+        String normalized = period.trim().toLowerCase(Locale.ROOT);
+        return normalized.contains("cały dzień") || normalized.contains("caly dzien");
     }
 }
