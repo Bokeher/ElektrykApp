@@ -23,8 +23,6 @@
     <string name="no_replacements">Brak zastępstw</string>
     <string name="no_replacements_description">Wszystkie lekcje odbywają się zgodnie z planem</string>
     <string name="no_articles">Brak artykułów</string>
-    <string name="previous_photo">Poprzednie zdjęcie</string>
-    <string name="next_photo">Następne zdjęcie</string>
     <string name="article_image_description">Zdjęcie artykułu</string>
     <string name="no_calendar_events">Brak wydarzeń w kalendarzu</string>
     <string name="lesson_label">Lekcja %1$s</string>
@@ -42,7 +40,6 @@
     <string name="empty_state_day_title">Brak zajęć</string>
     <string name="empty_state_day_description">Brak zaplanowanych zajęć w tym dniu</string>
     <string name="offline_mode">Brak połączenia z internetem</string>
-    <string name="gallery_unavailable_offline">Galeria zdjęć wymaga połączenia z internetem</string>
     <string name="settings_offline_notice_title">Wymagane połączenie z internetem</string>
     <string name="settings_offline_notice_description">Zmiana planu lekcji lub typu planu wymaga połączenia z internetem. Połącz się z siecią, aby zmienić te ustawienia.</string>
     <string name="settings_groups_title">Moje grupy</string>

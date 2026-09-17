@@ -27,10 +27,7 @@
     <string name="no_replacements">No replacements</string>
     <string name="no_replacements_description">All lessons are taking place according to schedule</string>
     <string name="no_articles">No articles available</string>
-    <string name="photo_counter_format" translatable="false">%1$d / %2$d</string>
     <string name="article_image_description">Article image</string>
-    <string name="previous_photo">Previous photo</string>
-    <string name="next_photo">Next photo</string>
     <string name="no_calendar_events">No calendar events available</string>
     <string name="lesson_label">Lesson %1$s</string>
     <string name="replacement_details_format" translatable="false">%1$s - %2$s</string>
@@ -50,7 +47,6 @@
     <string name="empty_state_day_title">No lessons</string>
     <string name="empty_state_day_description">No lessons scheduled for this day</string>
     <string name="offline_mode">No internet connection</string>
-    <string name="gallery_unavailable_offline">Photo gallery requires an internet connection</string>
     <string name="settings_offline_notice_title">Internet connection required</string>
     <string name="settings_offline_notice_description">Changing the timetable or user type requires an internet connection. Connect to the internet to change these settings.</string>
     <string name="settings_groups_title">My groups</string>
