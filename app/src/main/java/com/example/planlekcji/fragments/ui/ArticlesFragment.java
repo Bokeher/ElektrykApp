@@ -32,6 +32,9 @@ import java.util.Locale;
 public class ArticlesFragment extends Fragment {
     private MainViewModel mainViewModel;
     private LinearLayout articlesContainer;
+    private View loadMoreContainer;
+    private View buttonLoadMore;
+    private View progressBarLoadMore;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     @Override
@@ -40,6 +43,11 @@ public class ArticlesFragment extends Fragment {
 
         mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         articlesContainer = view.findViewById(R.id.linearLayout_articles);
+        loadMoreContainer = view.findViewById(R.id.layout_loadMoreContainer);
+        buttonLoadMore = view.findViewById(R.id.button_loadMoreArticles);
+        progressBarLoadMore = view.findViewById(R.id.progressBar_loadMoreArticles);
+
+        buttonLoadMore.setOnClickListener(v -> mainViewModel.loadMoreArticles());
 
         articlesContainer.addView(EmptyStateHelper.create(LayoutInflater.from(requireContext()), articlesContainer, EmptyStateType.ARTICLES));
 
@@ -50,52 +58,104 @@ public class ArticlesFragment extends Fragment {
 
     private void observeArticlesData() {
         mainViewModel.getArticlesLiveData().observe(getViewLifecycleOwner(), this::updateArticlesList);
+        mainViewModel.getIsLoadingMoreArticles().observe(getViewLifecycleOwner(), this::updateLoadingMoreState);
+        mainViewModel.getCanLoadMoreArticles().observe(getViewLifecycleOwner(), this::updateCanLoadMoreState);
+    }
+
+    private void updateCanLoadMoreState(Boolean canLoadMore) {
+        List<Article> currentArticles = mainViewModel.getArticlesLiveData().getValue();
+        if (currentArticles == null || currentArticles.isEmpty()) {
+            loadMoreContainer.setVisibility(View.GONE);
+        } else {
+            loadMoreContainer.setVisibility(Boolean.TRUE.equals(canLoadMore) ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void updateLoadingMoreState(Boolean isLoading) {
+        if (Boolean.TRUE.equals(isLoading)) {
+            buttonLoadMore.setVisibility(View.INVISIBLE);
+            progressBarLoadMore.setVisibility(View.VISIBLE);
+        } else {
+            buttonLoadMore.setVisibility(View.VISIBLE);
+            progressBarLoadMore.setVisibility(View.GONE);
+        }
     }
 
     private void updateArticlesList(List<Article> articles) {
-        articlesContainer.removeAllViews();
-
         if (articles == null || articles.isEmpty()) {
+            articlesContainer.removeAllViews();
+            loadMoreContainer.setVisibility(View.GONE);
             articlesContainer.addView(EmptyStateHelper.create(LayoutInflater.from(requireContext()), articlesContainer, EmptyStateType.ARTICLES));
             return;
         }
 
         LayoutInflater inflater = LayoutInflater.from(requireContext());
+        int currentChildCount = articlesContainer.getChildCount();
 
-        for (Article article : articles) {
-            View cardView = inflater.inflate(R.layout.article_card, articlesContainer, false);
-
-            ImageView imageViewHeader = cardView.findViewById(R.id.imageView_articleHeader);
-            TextView textViewTitle = cardView.findViewById(R.id.textView_articleTitle);
-            TextView textViewDate = cardView.findViewById(R.id.textView_articleDate);
-            TextView textViewSnippet = cardView.findViewById(R.id.textView_articleSnippet);
-
-            textViewTitle.setText(article.title());
-
-            if (article.creationDate() != null) {
-                textViewDate.setText(dateFormat.format(article.creationDate()));
-            } else {
-                textViewDate.setVisibility(View.GONE);
+        boolean canAppend = currentChildCount > 0 && currentChildCount <= articles.size();
+        if (canAppend) {
+            for (int i = 0; i < currentChildCount; i++) {
+                View child = articlesContainer.getChildAt(i);
+                Object tag = child.getTag();
+                if (!(tag instanceof Integer) || !tag.equals(articles.get(i).id())) {
+                    canAppend = false;
+                    break;
+                }
             }
+        }
 
-            if (article.content() != null) {
-                String plainText = Html.fromHtml(article.content(), Html.FROM_HTML_MODE_LEGACY).toString().trim();
-                textViewSnippet.setText(plainText);
-            } else {
-                textViewSnippet.setVisibility(View.GONE);
-            }
+        int startIndex;
+        if (canAppend) {
+            startIndex = currentChildCount;
+        } else {
+            articlesContainer.removeAllViews();
+            startIndex = 0;
+        }
 
-            if (article.headerImageUrl() != null) {
-                imageViewHeader.setVisibility(View.VISIBLE);
-                Glide.with(this)
-                        .load(article.headerImageUrl().toString())
-                        .placeholder(R.drawable.image_placeholder)
-                        .into(imageViewHeader);
-            }
-
-            cardView.setOnClickListener(v -> openArticleInBrowser(article));
+        for (int i = startIndex; i < articles.size(); i++) {
+            Article article = articles.get(i);
+            View cardView = createArticleCard(inflater, article);
+            cardView.setTag(article.id());
             articlesContainer.addView(cardView);
         }
+
+        Boolean canLoadMore = mainViewModel.getCanLoadMoreArticles().getValue();
+        loadMoreContainer.setVisibility(Boolean.TRUE.equals(canLoadMore) ? View.VISIBLE : View.GONE);
+    }
+
+    private View createArticleCard(LayoutInflater inflater, Article article) {
+        View cardView = inflater.inflate(R.layout.article_card, articlesContainer, false);
+
+        ImageView imageViewHeader = cardView.findViewById(R.id.imageView_articleHeader);
+        TextView textViewTitle = cardView.findViewById(R.id.textView_articleTitle);
+        TextView textViewDate = cardView.findViewById(R.id.textView_articleDate);
+        TextView textViewSnippet = cardView.findViewById(R.id.textView_articleSnippet);
+
+        textViewTitle.setText(article.title());
+
+        if (article.creationDate() != null) {
+            textViewDate.setText(dateFormat.format(article.creationDate()));
+        } else {
+            textViewDate.setVisibility(View.GONE);
+        }
+
+        if (article.content() != null) {
+            String plainText = Html.fromHtml(article.content(), Html.FROM_HTML_MODE_LEGACY).toString().trim();
+            textViewSnippet.setText(plainText);
+        } else {
+            textViewSnippet.setVisibility(View.GONE);
+        }
+
+        if (article.headerImageUrl() != null) {
+            imageViewHeader.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(article.headerImageUrl().toString())
+                    .placeholder(R.drawable.image_placeholder)
+                    .into(imageViewHeader);
+        }
+
+        cardView.setOnClickListener(v -> openArticleInBrowser(article));
+        return cardView;
     }
 
     private void openArticleInBrowser(Article article) {

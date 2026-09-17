@@ -28,6 +28,7 @@
     <string name="no_replacements_description">All lessons are taking place according to schedule</string>
     <string name="no_articles">No articles available</string>
     <string name="article_image_description">Article image</string>
+    <string name="articles_show_more">Show more</string>
     <string name="no_calendar_events">No calendar events available</string>
     <string name="lesson_label">Lesson %1$s</string>
     <string name="replacement_details_format" translatable="false">%1$s - %2$s</string>

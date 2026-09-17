@@ -24,6 +24,7 @@
     <string name="no_replacements_description">Wszystkie lekcje odbywają się zgodnie z planem</string>
     <string name="no_articles">Brak artykułów</string>
     <string name="article_image_description">Zdjęcie artykułu</string>
+    <string name="articles_show_more">Pokaż więcej</string>
     <string name="no_calendar_events">Brak wydarzeń w kalendarzu</string>
     <string name="lesson_label">Lekcja %1$s</string>
     <string name="toastErrorMessage_failedApiConnection">Nie udało się nawiązać połączenia z serwerem.</string>

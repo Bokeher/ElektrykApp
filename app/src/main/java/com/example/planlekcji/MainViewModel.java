@@ -12,6 +12,7 @@ import com.example.planlekcji.calendar.CalendarDataDownloader;
 import com.example.planlekcji.ckziu_elektryk.client.CKZiUElektrykClient;
 import com.example.planlekcji.ckziu_elektryk.client.article.Article;
 import com.example.planlekcji.ckziu_elektryk.client.calendar.Calendar;
+import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
 import com.example.planlekcji.listener.ArticlesDownloadCompleteListener;
@@ -24,6 +25,7 @@ import com.example.planlekcji.utils.DayOfWeek;
 import com.example.planlekcji.utils.RefreshCooldownManager;
 import com.example.planlekcji.utils.RefreshDataType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,6 +56,11 @@ public class MainViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoadingTimetable = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isLoadingArticles = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isLoadingCalendar = new MutableLiveData<>(false);
+
+    // Article pagination state
+    private int currentArticlesPage = 1;
+    private final MutableLiveData<Boolean> isLoadingMoreArticles = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> canLoadMoreArticles = new MutableLiveData<>(true);
 
     public MainViewModel() {
         client = CKZiUElektrykClient.getInstance();
@@ -155,6 +162,8 @@ public class MainViewModel extends ViewModel {
         if (articlesTask != null && !articlesTask.isDone()) {
             articlesTask.cancel(true);
         }
+        currentArticlesPage = 1;
+        canLoadMoreArticles.postValue(true);
         isLoadingArticles.postValue(true);
         ArticleDataDownloader downloader = new ArticleDataDownloader(client, new ArticlesDownloadCompleteListener() {
             @Override
@@ -250,6 +259,62 @@ public class MainViewModel extends ViewModel {
 
     public LiveData<Boolean> getIsLoadingArticles() {
         return isLoadingArticles;
+    }
+
+    public LiveData<Boolean> getIsLoadingMoreArticles() {
+        return isLoadingMoreArticles;
+    }
+
+    public LiveData<Boolean> getCanLoadMoreArticles() {
+        return canLoadMoreArticles;
+    }
+
+    public void loadMoreArticles() {
+        if (Boolean.TRUE.equals(isLoadingMoreArticles.getValue()) || Boolean.FALSE.equals(canLoadMoreArticles.getValue())) {
+            return;
+        }
+        isLoadingMoreArticles.postValue(true);
+        executorService.submit(() -> {
+            try {
+                int nextPage = currentArticlesPage + 1;
+                Page<Article> page = client.getArticleService().getArticles(nextPage);
+                if (page != null && page.data() != null && !page.data().isEmpty()) {
+                    List<Article> newArticles = page.data();
+                    List<Article> currentArticles = articles.getValue();
+                    List<Article> updatedList = new ArrayList<>();
+                    if (currentArticles != null) {
+                        updatedList.addAll(currentArticles);
+                    }
+                    for (Article newArt : newArticles) {
+                        boolean exists = false;
+                        for (Article curr : updatedList) {
+                            if (curr.id() == newArt.id()) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            updatedList.add(newArt);
+                        }
+                    }
+                    currentArticlesPage = nextPage;
+                    articles.postValue(updatedList);
+
+                    if (page.meta() != null && nextPage >= page.meta().lastPage()) {
+                        canLoadMoreArticles.postValue(false);
+                    } else if (page.links() != null && page.links().next() == null) {
+                        canLoadMoreArticles.postValue(false);
+                    }
+                } else {
+                    canLoadMoreArticles.postValue(false);
+                }
+            } catch (Exception e) {
+                Log.e("MainViewModel", "Failed to load more articles", e);
+                toastErrorMessage.postValue(R.string.toast_errorMessage);
+            } finally {
+                isLoadingMoreArticles.postValue(false);
+            }
+        });
     }
 
     public LiveData<Boolean> getIsLoadingCalendar() {
