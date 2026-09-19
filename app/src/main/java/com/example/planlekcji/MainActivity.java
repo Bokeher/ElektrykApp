@@ -2,6 +2,7 @@ package com.example.planlekcji;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
@@ -23,6 +24,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.fragments.ViewPagerAdapter;
+import com.example.planlekcji.notifications.FcmTopicManager;
+import com.example.planlekcji.notifications.NotificationHelper;
 import com.example.planlekcji.utils.NetworkMonitor;
 import com.example.planlekcji.utils.RefreshCooldownManager;
 import com.example.planlekcji.utils.RefreshDataType;
@@ -31,9 +34,12 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_TARGET_TAB = "extra_target_tab";
+
     private static Context appContext;
     private MainViewModel mainViewModel;
     private NetworkMonitor networkMonitor;
+    private ViewPager2 viewPager2_appContent;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -42,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize the application context for other functions.
         appContext = getApplicationContext();
+
+        // Initialize notification channels and sync FCM topic subscriptions
+        NotificationHelper.createNotificationChannels(this);
+        FcmTopicManager.syncSubscriptions(this);
 
         // Obtain the MainViewModel instance to update data on settings changes
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -63,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Set adapter
-        ViewPager2 viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
+        viewPager2_appContent = findViewById(R.id.viewPager2_appContent);
         SwipeRefreshLayout swipeRefresh = findViewById(R.id.swipeRefresh_main);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
@@ -202,6 +212,43 @@ public class MainActivity extends AppCompatActivity {
 
         // Trigger initial data load for the default visible tab (both online and offline)
         triggerCurrentTabFetch(viewPager2_appContent);
+
+        // Handle navigation if started from a notification click
+        handleNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent);
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent == null || !intent.hasExtra(EXTRA_TARGET_TAB) || viewPager2_appContent == null) {
+            return;
+        }
+
+        int targetTab = intent.getIntExtra(EXTRA_TARGET_TAB, -1);
+        if (targetTab < 0) {
+            return;
+        }
+
+        viewPager2_appContent.setCurrentItem(targetTab, false);
+        switch (targetTab) {
+            case ViewPagerAdapter.TIMETABLE_TAB_ID -> {
+                mainViewModel.setTimetableNeedsRefresh(true);
+                mainViewModel.fetchTimetable();
+            }
+            case ViewPagerAdapter.REPLACEMENTS_TAB_ID -> {
+                mainViewModel.setReplacementsNeedsRefresh(true);
+                mainViewModel.fetchReplacements();
+            }
+            case ViewPagerAdapter.ARTICLES_TAB_ID -> {
+                mainViewModel.setArticlesNeedsRefresh(true);
+                mainViewModel.fetchArticles();
+            }
+        }
     }
 
     private void updateSwipeRefreshState(SwipeRefreshLayout swipeRefresh, int currentPosition) {

@@ -1,14 +1,21 @@
 package com.example.planlekcji.fragments.ui;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,6 +32,8 @@ import com.example.planlekcji.MainActivity;
 import com.example.planlekcji.MainViewModel;
 import com.example.planlekcji.R;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntry;
+import com.example.planlekcji.notifications.FcmTopicManager;
+import com.example.planlekcji.notifications.NotificationPreferences;
 import com.example.planlekcji.settings.GroupPreferenceManager;
 import com.example.planlekcji.settings.SchoolEntriesDownloader;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -40,6 +49,20 @@ public class SettingsFragment extends Fragment {
     private List<SchoolEntry> classroomsSchoolEntries = new ArrayList<>();
     private View view;
     private MainViewModel mainViewModel;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (!isAdded()) return;
+                if (isGranted) {
+                    NotificationPreferences.setNotificationsMasterEnabled(requireContext(), true);
+                    updateNotificationUi(true);
+                    FcmTopicManager.syncSubscriptions(requireContext());
+                } else {
+                    NotificationPreferences.setNotificationsMasterEnabled(requireContext(), false);
+                    updateNotificationUi(false);
+                    Toast.makeText(requireContext(), R.string.settings_notifications_permission_denied, Toast.LENGTH_LONG).show();
+                }
+            });
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,6 +118,9 @@ public class SettingsFragment extends Fragment {
         // Setup About section
         setupAboutSection();
 
+        // Setup Notifications section
+        setupNotificationsSection();
+
         // Initial visibility
         changeVisibility();
 
@@ -107,6 +133,162 @@ public class SettingsFragment extends Fragment {
     private static final String GITHUB_REPO_URL = "https://github.com/Bokeher/PlanLekcji";
     private static final String PRIVACY_POLICY_URL = "https://github.com/Bokeher/PlanLekcji/blob/master/PRIVACY_POLICY.md";
     private static final String CONTACT_EMAIL = "rychter47@gmail.com";
+
+    private void setupNotificationsSection() {
+        if (view == null) return;
+
+        SwitchMaterial switchMaster = view.findViewById(R.id.switch_notificationsMaster);
+        View layoutMaster = view.findViewById(R.id.layout_masterNotificationSwitch);
+
+        SwitchMaterial switchTimetable = view.findViewById(R.id.switch_notifyTimetable);
+        View layoutTimetable = view.findViewById(R.id.layout_timetableNotificationSwitch);
+
+        SwitchMaterial switchReplacements = view.findViewById(R.id.switch_notifyReplacements);
+        View layoutReplacements = view.findViewById(R.id.layout_replacementsNotificationSwitch);
+
+        SwitchMaterial switchArticles = view.findViewById(R.id.switch_notifyArticles);
+        View layoutArticles = view.findViewById(R.id.layout_articlesNotificationSwitch);
+
+        View layoutPermissionNotice = view.findViewById(R.id.layout_notificationPermissionNotice);
+
+        Context context = requireContext();
+
+        // 0) Master switch
+        if (switchMaster != null) {
+            boolean masterEnabled = NotificationPreferences.isNotificationsMasterEnabled(context);
+            switchMaster.setChecked(masterEnabled);
+            switchMaster.setOnCheckedChangeListener((btn, isChecked) -> {
+                if (isChecked) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission()) {
+                        requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                        return;
+                    }
+                    NotificationPreferences.setNotificationsMasterEnabled(requireContext(), true);
+                    updateNotificationUi(true);
+                    FcmTopicManager.syncSubscriptions(requireContext());
+                } else {
+                    NotificationPreferences.setNotificationsMasterEnabled(requireContext(), false);
+                    updateNotificationUi(false);
+                    FcmTopicManager.unsubscribeFromAll(requireContext());
+                }
+            });
+            if (layoutMaster != null) {
+                layoutMaster.setOnClickListener(v -> switchMaster.toggle());
+            }
+        }
+
+        // 1) Timetable switch
+        if (switchTimetable != null) {
+            switchTimetable.setChecked(NotificationPreferences.isNotifyTimetableEnabled(context));
+            switchTimetable.setOnCheckedChangeListener((btn, isChecked) -> {
+                NotificationPreferences.setNotifyTimetableEnabled(requireContext(), isChecked);
+                FcmTopicManager.syncSubscriptions(requireContext());
+            });
+            if (layoutTimetable != null) {
+                layoutTimetable.setOnClickListener(v -> {
+                    if (layoutTimetable.isEnabled()) switchTimetable.toggle();
+                });
+            }
+        }
+
+        // 2) Replacements switch
+        if (switchReplacements != null) {
+            switchReplacements.setChecked(NotificationPreferences.isNotifyReplacementsEnabled(context));
+            switchReplacements.setOnCheckedChangeListener((btn, isChecked) -> {
+                NotificationPreferences.setNotifyReplacementsEnabled(requireContext(), isChecked);
+                FcmTopicManager.syncSubscriptions(requireContext());
+            });
+            if (layoutReplacements != null) {
+                layoutReplacements.setOnClickListener(v -> {
+                    if (layoutReplacements.isEnabled()) switchReplacements.toggle();
+                });
+            }
+        }
+
+        // 3) Articles switch
+        if (switchArticles != null) {
+            switchArticles.setChecked(NotificationPreferences.isNotifyArticlesEnabled(context));
+            switchArticles.setOnCheckedChangeListener((btn, isChecked) -> {
+                NotificationPreferences.setNotifyArticlesEnabled(requireContext(), isChecked);
+                FcmTopicManager.syncSubscriptions(requireContext());
+            });
+            if (layoutArticles != null) {
+                layoutArticles.setOnClickListener(v -> {
+                    if (layoutArticles.isEnabled()) switchArticles.toggle();
+                });
+            }
+        }
+
+        // Permission notice click -> open system notification settings
+        if (layoutPermissionNotice != null) {
+            layoutPermissionNotice.setOnClickListener(v -> openAppNotificationSettings());
+        }
+
+        updateNotificationUi(NotificationPreferences.isNotificationsMasterEnabled(context));
+    }
+
+    private void openAppNotificationSettings() {
+        try {
+            Intent intent = new Intent();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                intent.setAction(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                intent.putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().getPackageName());
+            } else {
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + requireContext().getPackageName()));
+            }
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), R.string.toast_errorMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean hasNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
+
+    private void updateNotificationUi(boolean isMasterChecked) {
+        if (view == null || !isAdded()) return;
+
+        SwitchMaterial switchMaster = view.findViewById(R.id.switch_notificationsMaster);
+        if (switchMaster != null && switchMaster.isChecked() != isMasterChecked) {
+            switchMaster.setChecked(isMasterChecked);
+        }
+
+        View subOptions = view.findViewById(R.id.layout_notificationSubOptions);
+        if (subOptions != null) {
+            subOptions.setAlpha(isMasterChecked ? 1.0f : 0.45f);
+            enableDisableView(subOptions, isMasterChecked);
+        }
+
+        View layoutPermissionNotice = view.findViewById(R.id.layout_notificationPermissionNotice);
+        if (layoutPermissionNotice != null) {
+            boolean permissionMissing = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) && !hasNotificationPermission();
+            layoutPermissionNotice.setVisibility((isMasterChecked && permissionMissing) ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void enableDisableView(View view, boolean enabled) {
+        if (view == null) return;
+        view.setEnabled(enabled);
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                enableDisableView(group.getChildAt(i), enabled);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isAdded() && getContext() != null) {
+            updateNotificationUi(NotificationPreferences.isNotificationsMasterEnabled(requireContext()));
+        }
+    }
 
     private void setupAboutSection() {
         if (view == null) return;
@@ -275,6 +457,8 @@ public class SettingsFragment extends Fragment {
                     editor.putString(sharedPreferencesToken, newToken);
                     editor.apply();
 
+                    FcmTopicManager.syncSubscriptions(requireContext());
+
                     if (mainViewModel != null) {
                         mainViewModel.setSettingsChanged(true);
                     }
@@ -310,6 +494,7 @@ public class SettingsFragment extends Fragment {
                     editor.apply();
 
                     changeVisibility();
+                    FcmTopicManager.syncSubscriptions(requireContext());
 
                     if (mainViewModel != null) {
                         mainViewModel.setSettingsChanged(true);
@@ -401,6 +586,7 @@ public class SettingsFragment extends Fragment {
 
         if (changed) {
             editor.apply();
+            FcmTopicManager.syncSubscriptions(requireContext());
         }
     }
 }

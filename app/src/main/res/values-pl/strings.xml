@@ -66,4 +66,29 @@
     <string name="settings_about_contact_subject">[Plan Lekcji] Kontakt</string>
     <string name="error_cannot_open_link">Nie można otworzyć linku</string>
     <string name="error_cannot_send_email">Nie można otworzyć aplikacji pocztowej</string>
+
+    <!-- Notifications Channels -->
+    <string name="notification_channel_timetable">Aktualizacje planu</string>
+    <string name="notification_channel_replacements">Zastępstwa</string>
+    <string name="notification_channel_articles">Aktualności szkolne</string>
+
+    <!-- Notification Messages -->
+    <string name="notification_timetable_title">Zmiana w planie</string>
+    <string name="notification_replacement_title">Nowe zastępstwa</string>
+    <string name="notification_replacement_class_body">Nowe zastępstwa dla klasy %1$s</string>
+    <string name="notification_replacement_teacher_body">Dostępne są nowe zastępstwa dla nauczycieli</string>
+    <string name="notification_replacement_general_body">Dostępne są nowe zastępstwa</string>
+    <string name="notification_article_title">Nowy artykuł</string>
+
+    <!-- Settings Notifications -->
+    <string name="settings_notifications_title">Powiadomienia</string>
+    <string name="settings_notifications_master">Powiadomienia push</string>
+    <string name="settings_notifications_master_desc">Otrzymuj powiadomienia o zmianach w planie, zastępstwach i wiadomościach</string>
+    <string name="settings_notifications_timetable">Zmiany w planie lekcji</string>
+    <string name="settings_notifications_timetable_desc">Otrzymuj powiadomienia o zmianach w planie lekcji</string>
+    <string name="settings_notifications_replacements">Nowe zastępstwa</string>
+    <string name="settings_notifications_replacements_desc">Otrzymuj powiadomienia o nowych zastępstwach</string>
+    <string name="settings_notifications_articles">Nowe artykuły</string>
+    <string name="settings_notifications_articles_desc">Otrzymuj powiadomienia o nowych artykułach</string>
+    <string name="settings_notifications_permission_denied">Wymagane jest uprawnienie do powiadomień. Dotknij tutaj, aby włączyć je w ustawieniach systemu.</string>
 </resources>

@@ -3,8 +3,12 @@
     <string name="classTokenKey" translatable="false">classToken</string>
     <string name="teacherTokenKey" translatable="false">teacherToken</string>
     <string name="classroomTokenKey" translatable="false">classroomToken</string>
-
     <string name="selectedTypeOfTimetableKey" translatable="false">selectedTypeOfTimetable</string>
+    <string name="prefNotificationsMasterKey" translatable="false">pref_notifications_master</string>
+    <string name="prefNotifyTimetableKey" translatable="false">pref_notify_timetable</string>
+    <string name="prefNotifyReplacementsKey" translatable="false">pref_notify_replacements</string>
+    <string name="prefNotifyArticlesKey" translatable="false">pref_notify_articles</string>
+    <string name="prefFcmTokenKey" translatable="false">pref_fcm_token</string>
     <string name="navigate_timetable">Timetable</string>
     <string name="navigate_replacements">Replacements</string>
     <string name="navigate_articles">Articles</string>
@@ -73,4 +77,29 @@
     <string name="settings_about_contact_subject">[Timetable] Contact</string>
     <string name="error_cannot_open_link">Cannot open link</string>
     <string name="error_cannot_send_email">Cannot open email application</string>
+
+    <!-- Notifications Channels -->
+    <string name="notification_channel_timetable">Timetable updates</string>
+    <string name="notification_channel_replacements">Substitutions</string>
+    <string name="notification_channel_articles">School news</string>
+
+    <!-- Notification Messages -->
+    <string name="notification_timetable_title">Timetable update</string>
+    <string name="notification_replacement_title">New substitutions</string>
+    <string name="notification_replacement_class_body">New substitutions are available for class %1$s</string>
+    <string name="notification_replacement_teacher_body">New substitutions are available for teachers</string>
+    <string name="notification_replacement_general_body">New substitutions are available</string>
+    <string name="notification_article_title">New article</string>
+
+    <!-- Settings Notifications -->
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_master">Push notifications</string>
+    <string name="settings_notifications_master_desc">Receive notifications about timetable changes, substitutions, and news</string>
+    <string name="settings_notifications_timetable">Timetable changes</string>
+    <string name="settings_notifications_timetable_desc">Receive notifications about timetable changes</string>
+    <string name="settings_notifications_replacements">Substitutions</string>
+    <string name="settings_notifications_replacements_desc">Receive notifications about new replacements</string>
+    <string name="settings_notifications_articles">Articles</string>
+    <string name="settings_notifications_articles_desc">Receive notifications about new articles</string>
+    <string name="settings_notifications_permission_denied">Notification permission is required. Tap here to enable it in system settings.</string>
 </resources>
