@@ -109,35 +109,25 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void shouldGenerateCorrectWebUrlFromDateAndTitle() {
-        Date date = Article.parsedDate("2026-09-15 08:03:14");
-        Article article = new Article(19664, date, "Integracja klas pierwszych w CKZiU „Elektryk”", "", null);
+    public void shouldAddAnchorWhenNotPresent() throws MalformedURLException {
+        URL articleUrl = new URL("https://www.ckziu-elektryk.pl/2026/09/integracja-klas-pierwszych-w-ckziu-elektryk/");
+        Article article = new Article(19664, null, "Test", "", null, articleUrl);
 
         assertEquals("https://www.ckziu-elektryk.pl/2026/09/integracja-klas-pierwszych-w-ckziu-elektryk/#main", article.getWebUrl());
     }
 
     @Test
-    public void shouldGenerateCorrectWebUrlFor80Lecie() {
-        Date date = Article.parsedDate("2026-09-10 12:00:00");
-        Article article = new Article(19665, date, "PROGRAM OBCHODÓW 80-LECIA SZKOŁY", "", null);
-
-        assertEquals("https://www.ckziu-elektryk.pl/2026/09/program-obchodow-80-lecia-szkoly/#main", article.getWebUrl());
-    }
-
-    @Test
-    public void shouldPreferExplicitUrlIfPresent() throws MalformedURLException {
-        Date date = Article.parsedDate("2026-09-10 12:00:00");
-        URL explicitUrl = new URL("https://www.ckziu-elektryk.pl/custom-url/");
-        Article article = new Article(1, date, "Test", "", null, null, explicitUrl);
+    public void shouldNotDuplicateAnchorIfUrlAlreadyContainsHash() throws MalformedURLException {
+        URL articleUrl = new URL("https://www.ckziu-elektryk.pl/custom-url/#main");
+        Article article = new Article(1, null, "Test", "", null, articleUrl);
 
         assertEquals("https://www.ckziu-elektryk.pl/custom-url/#main", article.getWebUrl());
     }
 
     @Test
-    public void shouldGenerateCorrectWebUrlWithSlashAndQuotes() {
-        Date date = Article.parsedDate("2026-09-01 09:00:00");
-        Article article = new Article(19666, date, "Rozpoczęcie roku szkolnego 2026/2027 w CKZiU „Elektryk”", "", null);
+    public void shouldReturnFallbackUrlWhenUrlIsNull() {
+        Article article = new Article(19665, null, "Test", "", null);
 
-        assertEquals("https://www.ckziu-elektryk.pl/2026/09/rozpoczecie-roku-szkolnego-2026-2027-w-ckziu-elektryk/#main", article.getWebUrl());
+        assertEquals("https://www.ckziu-elektryk.pl/news/", article.getWebUrl());
     }
 }

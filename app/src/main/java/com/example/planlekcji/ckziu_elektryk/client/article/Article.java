@@ -5,7 +5,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -44,39 +43,7 @@ public record Article(
             String urlStr = url.toString();
             return urlStr.contains("#") ? urlStr : (urlStr.endsWith("/") ? urlStr + "#main" : urlStr + "/#main");
         }
-        if (creationDate != null && title != null && !title.trim().isEmpty()) {
-            SimpleDateFormat yearMonthFormat = new SimpleDateFormat("yyyy/MM", Locale.ROOT);
-            String yearMonth = yearMonthFormat.format(creationDate);
-            String slug = generateSlug(title);
-            if (!slug.isEmpty()) {
-                return "https://www.ckziu-elektryk.pl/" + yearMonth + "/" + slug + "/#main";
-            }
-        }
-        return "https://www.ckziu-elektryk.pl/#main";
-    }
-
-    public static String generateSlug(String text) {
-        if (text == null) return "";
-        String normalized = text
-                .replace('ł', 'l') // normalizer doesn't handle this letter
-                .replace('Ł', 'l')
-                .replace("\"", "")
-                .replace("'", "")
-                .replace("„", "")
-                .replace("”", "")
-                .replace("“", "")
-                .replace("’", "")
-                .replace('/', '-')
-                .replace('\\', '-')
-                .replace('_', '-');
-
-        normalized = Normalizer.normalize(normalized, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-
-        return normalized.toLowerCase(Locale.ROOT)
-                .replaceAll("[^a-z0-9\\s-]", "")
-                .trim()
-                .replaceAll("[\\s-]+", "-");
+        return "https://www.ckziu-elektryk.pl/news/";
     }
 
     public URL getHeaderImageUrl(PhotoSize photoSize) throws MalformedURLException {

@@ -44,26 +44,12 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
                                     (String) datum.get("content"),
                                     parseURL((String) datum.get("header_image_url")),
                                     null,
-                                    extractWebUrl(datum)
+                                    parseURL((String) datum.get("url"))
                             ))
                             .collect(Collectors.toList());
 
                     return new Page<>(articles, successResponsePage.links(), successResponsePage.meta());
                 });
-    }
-
-    private URL extractWebUrl(Map<String, Object> datum) {
-        String[] possibleKeys = {"url", "link", "source_url", "post_url", "article_url", "guid"};
-        for (String key : possibleKeys) {
-            if (datum.containsKey(key) && datum.get(key) != null) {
-                Object val = datum.get(key);
-                if (val instanceof String && !((String) val).isEmpty()) {
-                    URL parsed = parseURL((String) val);
-                    if (parsed != null) return parsed;
-                }
-            }
-        }
-        return null;
     }
 
     private URL parseURL(String text) {
@@ -102,9 +88,7 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
                             .collect(Collectors.toList());
 
                     URL webUrl = (jsonObject.has("url") && !jsonObject.get("url").isJsonNull())
-                            ? parseURL(jsonObject.get("url").getAsString())
-                            : (jsonObject.has("link") && !jsonObject.get("link").isJsonNull())
-                            ? parseURL(jsonObject.get("link").getAsString()) : null;
+                            ? parseURL(jsonObject.get("url").getAsString()) : null;
 
                     URL headerImageUrl = (jsonObject.has("header_image_url") && !jsonObject.get("header_image_url").isJsonNull())
                             ? parseURL(jsonObject.get("header_image_url").getAsString()) : null;
