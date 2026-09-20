@@ -67,8 +67,11 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
     }
 
     private URL parseURL(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return null;
+        }
         try {
-            return new URL(text);
+            return new URL(text.trim());
         } catch (MalformedURLException e) {
             return null;
         }
@@ -90,21 +93,28 @@ public class ArticleServiceImpl extends ClientService implements ArticleService 
                 .success(successResponse -> {
                     JsonObject jsonObject = successResponse.getJsonElement().getAsJsonObject();
 
-                    JsonArray jsonArray = jsonObject.get("photos_urls").getAsJsonArray();
+                    JsonArray jsonArray = jsonObject.has("photos_urls") && !jsonObject.get("photos_urls").isJsonNull()
+                            ? jsonObject.get("photos_urls").getAsJsonArray()
+                            : new JsonArray();
 
                     List<URL> photosUrls = jsonArray.asList().stream()
                             .map(jsonElement -> parseURL(jsonElement.getAsJsonObject().get("url").getAsString()))
                             .collect(Collectors.toList());
 
-                    URL webUrl = jsonObject.has("url") ? parseURL(jsonObject.get("url").getAsString())
-                            : jsonObject.has("link") ? parseURL(jsonObject.get("link").getAsString()) : null;
+                    URL webUrl = (jsonObject.has("url") && !jsonObject.get("url").isJsonNull())
+                            ? parseURL(jsonObject.get("url").getAsString())
+                            : (jsonObject.has("link") && !jsonObject.get("link").isJsonNull())
+                            ? parseURL(jsonObject.get("link").getAsString()) : null;
+
+                    URL headerImageUrl = (jsonObject.has("header_image_url") && !jsonObject.get("header_image_url").isJsonNull())
+                            ? parseURL(jsonObject.get("header_image_url").getAsString()) : null;
 
                     return new Article(
                             jsonObject.get("id").getAsInt(),
                             Article.parsedDate(jsonObject.get("creation_date").getAsString()),
                             jsonObject.get("title").getAsString(),
                             jsonObject.get("content").getAsString(),
-                            parseURL(jsonObject.get("header_image_url").getAsString()),
+                            headerImageUrl,
                             photosUrls,
                             webUrl
                     );

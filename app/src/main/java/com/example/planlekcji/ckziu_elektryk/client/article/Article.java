@@ -27,6 +27,10 @@ public record Article(
         this(id, creationDate, title, content, headerImageUrl, null, null);
     }
 
+    public Article(int id, Date creationDate, String title, String content, URL headerImageUrl, URL url) {
+        this(id, creationDate, title, content, headerImageUrl, null, url);
+    }
+
     public Article(int id, Date creationDate, String title, String content, URL headerImageUrl, List<URL> photosURLs) {
         this(id, creationDate, title, content, headerImageUrl, photosURLs, null);
     }
@@ -104,4 +108,7 @@ public record Article(
         return content();
     }
 
+    public URL getUrl() {
+        return url();
+    }
 }
