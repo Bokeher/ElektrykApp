@@ -310,7 +310,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static Context getContext() {
-        return appContext;
+        if (appContext != null) {
+            return appContext;
+        }
+        return PlanLekcjiApp.getAppContext();
     }
 
     public NetworkMonitor getNetworkMonitor() {
@@ -332,17 +335,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static SchoolEntryType getTimetableType() {
-        Context context = MainActivity.getContext();
+        return getTimetableType(getContext());
+    }
+
+    public static SchoolEntryType getTimetableType(Context context) {
+        if (context == null) {
+            context = getContext();
+        }
+        if (context == null) {
+            return SchoolEntryType.CLASSES;
+        }
         SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
 
         // 0 - classes, 1 - teachers, 2 - classrooms
         int typeOfTimetable = sharedPreferences.getInt("selectedTypeOfTimetable", 0);
+        SchoolEntryType[] values = SchoolEntryType.values();
+        if (typeOfTimetable < 0 || typeOfTimetable >= values.length) {
+            return SchoolEntryType.CLASSES;
+        }
 
-        return SchoolEntryType.values()[typeOfTimetable];
+        return values[typeOfTimetable];
     }
 
     public static String getToken(SchoolEntryType timetableType) {
-        Context context = MainActivity.getContext();
+        return getToken(getContext(), timetableType);
+    }
+
+    public static String getToken(Context context, SchoolEntryType timetableType) {
+        if (context == null) {
+            context = getContext();
+        }
+        if (context == null) {
+            return "";
+        }
         SharedPreferences sharedPreferences = context.getSharedPreferences("sharedPrefs", 0);
 
         String tokenType;

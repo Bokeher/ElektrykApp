@@ -80,8 +80,8 @@ public final class FcmTopicManager {
         }
 
         // Timetable topic subscription for selected entry
-        SchoolEntryType currentType = MainActivity.getTimetableType();
-        String currentToken = MainActivity.getToken(currentType);
+        SchoolEntryType currentType = MainActivity.getTimetableType(context);
+        String currentToken = MainActivity.getToken(context, currentType);
         String desiredTimetableTopic = getTimetableTopic(currentType, currentToken);
 
         if (masterEnabled && timetableEnabled && !currentToken.isEmpty()) {

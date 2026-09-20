@@ -54,8 +54,8 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        SchoolEntryType currentType = MainActivity.getTimetableType();
-        String currentToken = MainActivity.getToken(currentType);
+        SchoolEntryType currentType = MainActivity.getTimetableType(this);
+        String currentToken = MainActivity.getToken(this, currentType);
 
         String msgToken = data.get("token");
         String msgEntryType = data.get("entry_type");
@@ -82,8 +82,8 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
 
-        SchoolEntryType currentType = MainActivity.getTimetableType();
-        String currentToken = MainActivity.getToken(currentType);
+        SchoolEntryType currentType = MainActivity.getTimetableType(this);
+        String currentToken = MainActivity.getToken(this, currentType);
 
         String targetType = data.get("target_type");
         boolean isTeacherTarget = "TEACHER".equalsIgnoreCase(targetType) || currentType == SchoolEntryType.TEACHERS;
