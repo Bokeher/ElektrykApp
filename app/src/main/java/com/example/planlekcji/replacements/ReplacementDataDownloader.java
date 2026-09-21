@@ -20,12 +20,16 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ReplacementDataDownloader implements Runnable {
+    public static final int REPLACEMENTS_PERIOD_DAYS = 7;
+
     private final ReplacementsDownloadCompleteListener listener;
     private final CKZiUElektrykClient client;
 
@@ -46,9 +50,9 @@ public class ReplacementDataDownloader implements Runnable {
 
         // Cache first
         Context context = MainActivity.getContext();
-        String cacheKey = "replacements_" + timetableType.name() + "_" + token;
-        Type listType = new TypeToken<List<List<Replacement>>>(){}.getType();
-        List<List<Replacement>> cached = null;
+        String cacheKey = "replacements_v2_" + timetableType.name() + "_" + token;
+        Type listType = new TypeToken<List<DayReplacements>>(){}.getType();
+        List<DayReplacements> cached = null;
 
         if (context != null && !token.isEmpty()) {
             try {
@@ -70,30 +74,52 @@ public class ReplacementDataDownloader implements Runnable {
 
         try {
             ReplacementService replacementService = client.getReplacementService();
-            Date[] next5Dates = getNext5Dates();
-            List<List<Replacement>> latestReplacements = new ArrayList<>();
+
+            Calendar startCal = Calendar.getInstance();
+            startCal.set(Calendar.HOUR_OF_DAY, 0);
+            startCal.set(Calendar.MINUTE, 0);
+            startCal.set(Calendar.SECOND, 0);
+            startCal.set(Calendar.MILLISECOND, 0);
+            Date startDate = startCal.getTime();
+
+            Calendar endCal = (Calendar) startCal.clone();
+            endCal.add(Calendar.DAY_OF_MONTH, Math.max(0, REPLACEMENTS_PERIOD_DAYS - 1));
+            Date endDate = endCal.getTime();
 
             ReplacementType replacementType = (timetableType == SchoolEntryType.CLASSES)
                     ? ReplacementType.CLASSES
                     : ReplacementType.TEACHERS;
 
-            for (Date date : next5Dates) {
+            Map<Date, List<Replacement>> rawMap = replacementService.getReplacements(replacementType, startDate, endDate);
+            if (rawMap == null) {
+                listener.onDownloadFailed();
+                return;
+            }
+
+            List<DayReplacements> latestReplacements = new ArrayList<>();
+            List<Date> sortedDates = new ArrayList<>(rawMap.keySet());
+            Collections.sort(sortedDates);
+
+            for (Date date : sortedDates) {
                 if (Thread.currentThread().isInterrupted()) return;
 
-                List<Replacement> rawReplacements = replacementService.getReplacements(replacementType, date);
-                if (rawReplacements == null) {
-                    listener.onDownloadFailed();
-                    return;
-                }
+                List<Replacement> rawReplacements = rawMap.get(date);
+                if (rawReplacements == null) continue;
 
+                List<Replacement> filtered;
                 if (timetableType == SchoolEntryType.CLASSES) {
-                    List<Replacement> filtered = rawReplacements.stream()
+                    filtered = rawReplacements.stream()
                             .filter(Objects::nonNull)
                             .filter(r -> Objects.equals(r.name(), token))
                             .collect(Collectors.toList());
-                    latestReplacements.add(filtered);
                 } else {
-                    latestReplacements.add(rawReplacements);
+                    filtered = rawReplacements.stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                }
+
+                if (!filtered.isEmpty()) {
+                    latestReplacements.add(new DayReplacements(date, filtered));
                 }
             }
 

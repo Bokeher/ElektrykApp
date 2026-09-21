@@ -15,6 +15,7 @@ import com.example.planlekcji.ckziu_elektryk.client.calendar.Calendar;
 import com.example.planlekcji.ckziu_elektryk.client.pagination.Page;
 import com.example.planlekcji.ckziu_elektryk.client.replacements.Replacement;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Lesson;
+import com.example.planlekcji.replacements.DayReplacements;
 import com.example.planlekcji.listener.ArticlesDownloadCompleteListener;
 import com.example.planlekcji.listener.CalendarDownloadCompleteListener;
 import com.example.planlekcji.listener.ReplacementsDownloadCompleteListener;
@@ -43,7 +44,7 @@ public class MainViewModel extends ViewModel {
     private Future<?> calendarTask;
 
     // Downloaded data
-    private final MutableLiveData<List<List<Replacement>>> replacements = new MutableLiveData<>();
+    private final MutableLiveData<List<DayReplacements>> replacements = new MutableLiveData<>();
     private final MutableLiveData<Map<DayOfWeek, List<Lesson>>> timetable = new MutableLiveData<>();
     private final MutableLiveData<List<Article>> articles = new MutableLiveData<>();
     private final MutableLiveData<Calendar> calendar = new MutableLiveData<>();
@@ -111,12 +112,12 @@ public class MainViewModel extends ViewModel {
         isLoadingReplacements.postValue(true);
         ReplacementDataDownloader downloader = new ReplacementDataDownloader(client, new ReplacementsDownloadCompleteListener() {
             @Override
-            public void onCacheLoaded(List<List<Replacement>> replacementList) {
+            public void onCacheLoaded(List<DayReplacements> replacementList) {
                 replacements.postValue(replacementList);
             }
 
             @Override
-            public void onDownloadComplete(List<List<Replacement>> replacementList) {
+            public void onDownloadComplete(List<DayReplacements> replacementList) {
                 if (!Objects.equals(replacements.getValue(), replacementList)) {
                     replacements.postValue(replacementList);
                 }
@@ -237,7 +238,7 @@ public class MainViewModel extends ViewModel {
         return timetable;
     }
 
-    public LiveData<List<List<Replacement>>> getReplacementsLiveData() {
+    public LiveData<List<DayReplacements>> getReplacementsLiveData() {
         return replacements;
     }
 

@@ -11,9 +11,12 @@ import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.SchoolClass
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.SingleLesson;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.lesson.Subject;
 import com.example.planlekcji.ckziu_elektryk.client.utils.Time;
+import com.example.planlekcji.replacements.DayReplacements;
 import com.example.planlekcji.utils.DayOfWeek;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -176,9 +179,9 @@ public final class PreviewDataStore {
         return timetable;
     }
 
-    public static List<List<Replacement>> getReplacements(SchoolEntryType type, String token) {
+    public static List<DayReplacements> getReplacements(SchoolEntryType type, String token) {
         String resolvedToken = resolveToken(type, token);
-        List<List<Replacement>> replacements = new ArrayList<>();
+        List<DayReplacements> replacements = new ArrayList<>();
 
         Map<Integer, List<Replacement>> classesData = new HashMap<>();
         classesData.put(0, List.of(
@@ -294,6 +297,7 @@ public final class PreviewDataStore {
                 createReplacement("George Scott", "2", "Cancelled")
         ));
 
+        Calendar cal = Calendar.getInstance();
         for (int dayIndex = 0; dayIndex < 5; dayIndex++) {
             List<Replacement> dayReplacements;
 
@@ -305,7 +309,10 @@ public final class PreviewDataStore {
                 dayReplacements = List.of();
             }
 
-            replacements.add(new ArrayList<>(dayReplacements));
+            if (!dayReplacements.isEmpty()) {
+                replacements.add(new DayReplacements(cal.getTime(), new ArrayList<>(dayReplacements)));
+            }
+            cal.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         return replacements;
