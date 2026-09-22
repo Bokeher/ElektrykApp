@@ -79,29 +79,16 @@ public final class FcmTopicManager {
                     .addOnCompleteListener(t -> Log.d(TAG, "Unsubscribed from " + TOPIC_ARTICLES));
         }
 
-        // Timetable topic subscription for selected entry
+        // Timetable topic subscription is currently omitted
         SchoolEntryType currentType = MainActivity.getTimetableType(context);
         String currentToken = MainActivity.getToken(context, currentType);
-        String desiredTimetableTopic = getTimetableTopic(currentType, currentToken);
 
-        if (masterEnabled && timetableEnabled && !currentToken.isEmpty()) {
-            if (lastTimetableTopic != null && !lastTimetableTopic.equals(desiredTimetableTopic)) {
-                fcm.unsubscribeFromTopic(lastTimetableTopic)
-                        .addOnCompleteListener(t -> Log.d(TAG, "Unsubscribed old timetable: " + lastTimetableTopic));
-            }
-            fcm.subscribeToTopic(desiredTimetableTopic)
+        if (lastTimetableTopic != null) {
+            fcm.unsubscribeFromTopic(lastTimetableTopic)
                     .addOnCompleteListener(t -> {
-                        Log.d(TAG, "Subscribed to timetable topic: " + desiredTimetableTopic);
-                        prefs.edit().putString(PREF_LAST_TIMETABLE_TOPIC, desiredTimetableTopic).apply();
+                        Log.d(TAG, "Unsubscribed from timetable: " + lastTimetableTopic);
+                        prefs.edit().remove(PREF_LAST_TIMETABLE_TOPIC).apply();
                     });
-        } else {
-            if (lastTimetableTopic != null) {
-                fcm.unsubscribeFromTopic(lastTimetableTopic)
-                        .addOnCompleteListener(t -> {
-                            Log.d(TAG, "Unsubscribed from timetable: " + lastTimetableTopic);
-                            prefs.edit().remove(PREF_LAST_TIMETABLE_TOPIC).apply();
-                        });
-            }
         }
 
         // Substitutions topic subscription for class or teachers

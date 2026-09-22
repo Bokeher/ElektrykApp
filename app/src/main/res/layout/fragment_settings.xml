@@ -524,7 +524,7 @@
                         android:layout_marginBottom="8dp"
                         android:background="#2C2C2E" />
 
-                    <!-- 1) Timetable Changes Switch -->
+                    <!-- 1) Timetable Changes Switch (Hidden: timetable notifications currently omitted) -->
                     <LinearLayout
                         android:id="@+id/layout_timetableNotificationSwitch"
                         android:layout_width="match_parent"
@@ -535,7 +535,8 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
+                        android:paddingBottom="4dp"
+                        android:visibility="gone">
 
                         <LinearLayout
                             android:layout_width="0dp"
