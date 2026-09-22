@@ -237,4 +237,13 @@ public final class NotificationHelper {
             Log.e(TAG, "Cannot show article notification without permission", e);
         }
     }
+
+    public static void cancelNotification(Context context, int notificationId) {
+        if (context == null) return;
+        try {
+            NotificationManagerCompat.from(context).cancel(notificationId);
+        } catch (Exception e) {
+            Log.e(TAG, "Cannot cancel notification " + notificationId, e);
+        }
+    }
 }

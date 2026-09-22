@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 updateSwipeRefreshState(swipeRefresh, position);
+                cancelNotificationForTab(position);
             }
         });
 
@@ -236,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
         }
 
         viewPager2_appContent.setCurrentItem(targetTab, false);
+        cancelNotificationForTab(targetTab);
         switch (targetTab) {
             case ViewPagerAdapter.TIMETABLE_TAB_ID -> {
                 mainViewModel.setTimetableNeedsRefresh(true);
@@ -249,6 +251,17 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
                 mainViewModel.setArticlesNeedsRefresh(true);
                 mainViewModel.fetchArticles();
             }
+        }
+    }
+
+    private void cancelNotificationForTab(int tabPosition) {
+        switch (tabPosition) {
+            case ViewPagerAdapter.TIMETABLE_TAB_ID ->
+                    NotificationHelper.cancelNotification(this, NotificationHelper.NOTIFICATION_ID_TIMETABLE);
+            case ViewPagerAdapter.REPLACEMENTS_TAB_ID ->
+                    NotificationHelper.cancelNotification(this, NotificationHelper.NOTIFICATION_ID_REPLACEMENTS);
+            case ViewPagerAdapter.ARTICLES_TAB_ID ->
+                    NotificationHelper.cancelNotification(this, NotificationHelper.NOTIFICATION_ID_ARTICLES);
         }
     }
 
@@ -306,6 +319,9 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
     protected void onStart() {
         super.onStart();
         LiveUpdateRelay.register(this);
+        if (viewPager2_appContent != null) {
+            cancelNotificationForTab(viewPager2_appContent.getCurrentItem());
+        }
     }
 
     @Override
