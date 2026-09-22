@@ -11,8 +11,16 @@ public final class LiveUpdateRelay {
         ARTICLES
     }
 
+    public record LiveUpdateEvent(UpdateType type, String title, String message, int targetTab) {}
+
     public interface LiveUpdateListener {
         void onLiveUpdateReceived(UpdateType type);
+
+        default void onLiveUpdateReceived(LiveUpdateEvent event) {
+            if (event != null) {
+                onLiveUpdateReceived(event.type());
+            }
+        }
     }
 
     private static final List<LiveUpdateListener> listeners = new CopyOnWriteArrayList<>();
@@ -33,8 +41,13 @@ public final class LiveUpdateRelay {
 
     public static void emit(UpdateType type) {
         if (type == null) return;
+        emit(new LiveUpdateEvent(type, null, null, -1));
+    }
+
+    public static void emit(LiveUpdateEvent event) {
+        if (event == null) return;
         for (LiveUpdateListener listener : listeners) {
-            listener.onLiveUpdateReceived(type);
+            listener.onLiveUpdateReceived(event);
         }
     }
 

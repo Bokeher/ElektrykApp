@@ -10,7 +10,11 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +45,15 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
     private MainViewModel mainViewModel;
     private NetworkMonitor networkMonitor;
     private ViewPager2 viewPager2_appContent;
+
+    private View layoutInAppNotificationBanner;
+    private ImageView ivInAppNotificationIcon;
+    private TextView tvInAppNotificationCategory;
+    private TextView tvInAppNotificationMessage;
+    private View btnCloseInAppNotification;
+    private final Handler bannerHandler = new Handler(Looper.getMainLooper());
+    private Runnable hideBannerRunnable;
+    private int currentBannerTargetTab = -1;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -119,6 +132,17 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
                 cancelNotificationForTab(position);
             }
         });
+
+        // In-App Notification Banner
+        layoutInAppNotificationBanner = findViewById(R.id.layout_inAppNotificationBanner);
+        ivInAppNotificationIcon = findViewById(R.id.iv_inAppNotificationIcon);
+        tvInAppNotificationCategory = findViewById(R.id.tv_inAppNotificationCategory);
+        tvInAppNotificationMessage = findViewById(R.id.tv_inAppNotificationMessage);
+        btnCloseInAppNotification = findViewById(R.id.btn_closeInAppNotification);
+
+        if (btnCloseInAppNotification != null) {
+            btnCloseInAppNotification.setOnClickListener(v -> hideInAppNotificationBanner(true));
+        }
 
         // Progress indicator
         LinearProgressIndicator progressBar = findViewById(R.id.linearProgressBar);
@@ -263,6 +287,9 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
             case ViewPagerAdapter.ARTICLES_TAB_ID ->
                     NotificationHelper.cancelNotification(this, NotificationHelper.NOTIFICATION_ID_ARTICLES);
         }
+        if (currentBannerTargetTab == tabPosition) {
+            hideInAppNotificationBanner(true);
+        }
     }
 
     private void updateSwipeRefreshState(SwipeRefreshLayout swipeRefresh, int currentPosition) {
@@ -328,6 +355,16 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
     protected void onStop() {
         super.onStop();
         LiveUpdateRelay.unregister(this);
+        hideInAppNotificationBanner(false);
+    }
+
+    @Override
+    public void onLiveUpdateReceived(LiveUpdateRelay.LiveUpdateEvent event) {
+        if (event == null) return;
+        onLiveUpdateReceived(event.type());
+        if (event.title() != null || event.message() != null) {
+            runOnUiThread(() -> showInAppNotificationBanner(event));
+        }
     }
 
     @Override
@@ -359,6 +396,89 @@ public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.L
                 }
             }
         });
+    }
+
+    private void showInAppNotificationBanner(LiveUpdateRelay.LiveUpdateEvent event) {
+        if (layoutInAppNotificationBanner == null || isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        if (hideBannerRunnable != null) {
+            bannerHandler.removeCallbacks(hideBannerRunnable);
+        }
+
+        currentBannerTargetTab = event.targetTab();
+
+        if (tvInAppNotificationCategory != null) {
+            tvInAppNotificationCategory.setText(event.title() != null ? event.title() : "");
+        }
+        if (tvInAppNotificationMessage != null) {
+            tvInAppNotificationMessage.setText(event.message() != null ? event.message() : "");
+        }
+
+        if (ivInAppNotificationIcon != null) {
+            if (event.type() == LiveUpdateRelay.UpdateType.ARTICLES) {
+                ivInAppNotificationIcon.setImageResource(R.drawable.articles_icon);
+                ivInAppNotificationIcon.setContentDescription(getString(R.string.notification_channel_articles));
+            } else {
+                ivInAppNotificationIcon.setImageResource(R.drawable.replacement_icon);
+                ivInAppNotificationIcon.setContentDescription(getString(R.string.notification_channel_replacements));
+            }
+        }
+
+        layoutInAppNotificationBanner.setOnClickListener(v -> {
+            if (event.targetTab() >= 0 && viewPager2_appContent != null) {
+                viewPager2_appContent.setCurrentItem(event.targetTab(), true);
+            }
+            hideInAppNotificationBanner(true);
+        });
+
+        if (layoutInAppNotificationBanner.getVisibility() != View.VISIBLE) {
+            layoutInAppNotificationBanner.setVisibility(View.VISIBLE);
+            layoutInAppNotificationBanner.setAlpha(0f);
+            layoutInAppNotificationBanner.setTranslationY(-80f);
+            layoutInAppNotificationBanner.animate()
+                    .translationY(0f)
+                    .alpha(1f)
+                    .setDuration(300)
+                    .start();
+        } else {
+            layoutInAppNotificationBanner.animate().cancel();
+            layoutInAppNotificationBanner.setAlpha(1f);
+            layoutInAppNotificationBanner.setTranslationY(0f);
+        }
+
+        hideBannerRunnable = () -> hideInAppNotificationBanner(true);
+        bannerHandler.postDelayed(hideBannerRunnable, 6000);
+    }
+
+    private void hideInAppNotificationBanner(boolean animate) {
+        if (layoutInAppNotificationBanner == null) return;
+        if (hideBannerRunnable != null) {
+            bannerHandler.removeCallbacks(hideBannerRunnable);
+            hideBannerRunnable = null;
+        }
+        currentBannerTargetTab = -1;
+        if (layoutInAppNotificationBanner.getVisibility() != View.VISIBLE) {
+            return;
+        }
+        if (animate) {
+            layoutInAppNotificationBanner.animate()
+                    .translationY(-80f)
+                    .alpha(0f)
+                    .setDuration(250)
+                    .withEndAction(() -> {
+                        layoutInAppNotificationBanner.setVisibility(View.GONE);
+                        layoutInAppNotificationBanner.setTranslationY(0f);
+                        layoutInAppNotificationBanner.setAlpha(1f);
+                    })
+                    .start();
+        } else {
+            layoutInAppNotificationBanner.animate().cancel();
+            layoutInAppNotificationBanner.setVisibility(View.GONE);
+            layoutInAppNotificationBanner.setTranslationY(0f);
+            layoutInAppNotificationBanner.setAlpha(1f);
+        }
     }
 
     @Override

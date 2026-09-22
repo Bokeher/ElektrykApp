@@ -76,7 +76,8 @@ public class LiveUpdateRelayTest {
     public void shouldHandleNullGracefully() {
         LiveUpdateRelay.register(null);
         LiveUpdateRelay.unregister(null);
-        LiveUpdateRelay.emit(null);
+        LiveUpdateRelay.emit((LiveUpdateRelay.UpdateType) null);
+        LiveUpdateRelay.emit((LiveUpdateRelay.LiveUpdateEvent) null);
         // No exception expected
     }
 
@@ -91,5 +92,28 @@ public class LiveUpdateRelayTest {
         registeredListeners.remove(listener);
 
         assertFalse(LiveUpdateRelay.hasActiveListeners());
+    }
+
+    @Test
+    public void shouldReceiveLiveUpdateEvent() {
+        List<LiveUpdateRelay.LiveUpdateEvent> receivedEvents = new ArrayList<>();
+        LiveUpdateRelay.LiveUpdateListener listener = new LiveUpdateRelay.LiveUpdateListener() {
+            @Override
+            public void onLiveUpdateReceived(LiveUpdateRelay.UpdateType type) {}
+
+            @Override
+            public void onLiveUpdateReceived(LiveUpdateRelay.LiveUpdateEvent event) {
+                receivedEvents.add(event);
+            }
+        };
+        LiveUpdateRelay.register(listener);
+        registeredListeners.add(listener);
+
+        LiveUpdateRelay.LiveUpdateEvent testEvent = new LiveUpdateRelay.LiveUpdateEvent(
+                LiveUpdateRelay.UpdateType.REPLACEMENTS, "Zastępstwa", "Nowe zastępstwa dla 1TP", 1);
+        LiveUpdateRelay.emit(testEvent);
+
+        assertEquals(1, receivedEvents.size());
+        assertEquals(testEvent, receivedEvents.get(0));
     }
 }
