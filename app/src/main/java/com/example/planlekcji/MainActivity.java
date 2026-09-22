@@ -25,6 +25,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.example.planlekcji.ckziu_elektryk.client.timetable.SchoolEntryType;
 import com.example.planlekcji.fragments.ViewPagerAdapter;
 import com.example.planlekcji.notifications.FcmTopicManager;
+import com.example.planlekcji.notifications.LiveUpdateRelay;
 import com.example.planlekcji.notifications.NotificationHelper;
 import com.example.planlekcji.utils.NetworkMonitor;
 import com.example.planlekcji.utils.RefreshCooldownManager;
@@ -33,7 +34,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LiveUpdateRelay.LiveUpdateListener {
     public static final String EXTRA_TARGET_TAB = "extra_target_tab";
 
     private static Context appContext;
@@ -299,6 +300,49 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LiveUpdateRelay.register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LiveUpdateRelay.unregister(this);
+    }
+
+    @Override
+    public void onLiveUpdateReceived(LiveUpdateRelay.UpdateType type) {
+        if (type == null || mainViewModel == null) return;
+        runOnUiThread(() -> {
+            RefreshCooldownManager cooldown = RefreshCooldownManager.getInstance(this);
+            switch (type) {
+                case REPLACEMENTS -> {
+                    if (cooldown != null) {
+                        cooldown.invalidate(RefreshDataType.REPLACEMENTS);
+                    }
+                    mainViewModel.setReplacementsNeedsRefresh(false);
+                    mainViewModel.fetchReplacements();
+                }
+                case TIMETABLE -> {
+                    if (cooldown != null) {
+                        cooldown.invalidate(RefreshDataType.TIMETABLE);
+                    }
+                    mainViewModel.setTimetableNeedsRefresh(false);
+                    mainViewModel.fetchTimetable();
+                }
+                case ARTICLES -> {
+                    if (cooldown != null) {
+                        cooldown.invalidate(RefreshDataType.ARTICLES);
+                    }
+                    mainViewModel.setArticlesNeedsRefresh(false);
+                    mainViewModel.forceFetchArticles();
+                }
+            }
+        });
     }
 
     @Override

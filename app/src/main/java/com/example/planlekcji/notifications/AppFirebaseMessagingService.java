@@ -74,6 +74,7 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
 
         String displayToken = (currentToken != null && !currentToken.trim().isEmpty()) ? currentToken : msgToken;
         NotificationHelper.showTimetableNotification(this, displayToken);
+        LiveUpdateRelay.emit(LiveUpdateRelay.UpdateType.TIMETABLE);
     }
 
     // Handles substitution notifications without individual lesson details.
@@ -97,6 +98,8 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
             }
             NotificationHelper.showClassReplacementNotification(this, classToken);
         }
+
+        LiveUpdateRelay.emit(LiveUpdateRelay.UpdateType.REPLACEMENTS);
     }
 
     // Handles newly published school article notifications.
@@ -110,5 +113,6 @@ public class AppFirebaseMessagingService extends FirebaseMessagingService {
             title = data.get("body");
         }
         NotificationHelper.showArticleNotification(this, title);
+        LiveUpdateRelay.emit(LiveUpdateRelay.UpdateType.ARTICLES);
     }
 }
