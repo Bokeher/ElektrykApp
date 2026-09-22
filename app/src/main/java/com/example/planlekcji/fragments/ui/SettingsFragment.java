@@ -49,16 +49,19 @@ public class SettingsFragment extends Fragment {
     private List<SchoolEntry> classroomsSchoolEntries = new ArrayList<>();
     private View view;
     private MainViewModel mainViewModel;
+    private boolean isUpdatingNotificationSwitches = false;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (!isAdded()) return;
                 if (isGranted) {
                     NotificationPreferences.setNotificationsMasterEnabled(requireContext(), true);
+                    setAllChildNotificationsEnabled(true);
                     updateNotificationUi(true);
                     FcmTopicManager.syncSubscriptions(requireContext());
                 } else {
                     NotificationPreferences.setNotificationsMasterEnabled(requireContext(), false);
+                    setAllChildNotificationsEnabled(false);
                     updateNotificationUi(false);
                     Toast.makeText(requireContext(), R.string.settings_notifications_permission_denied, Toast.LENGTH_LONG).show();
                 }
@@ -153,21 +156,41 @@ public class SettingsFragment extends Fragment {
 
         Context context = requireContext();
 
+        boolean masterEnabled = NotificationPreferences.isNotificationsMasterEnabled(context);
+        boolean replacementsEnabled = NotificationPreferences.isNotifyReplacementsEnabled(context);
+        boolean articlesEnabled = NotificationPreferences.isNotifyArticlesEnabled(context);
+
+        if (masterEnabled && !replacementsEnabled && !articlesEnabled) {
+            masterEnabled = false;
+            NotificationPreferences.setNotificationsMasterEnabled(context, false);
+        } else if (!masterEnabled) {
+            replacementsEnabled = false;
+            articlesEnabled = false;
+            NotificationPreferences.setNotifyReplacementsEnabled(context, false);
+            NotificationPreferences.setNotifyArticlesEnabled(context, false);
+        }
+
         // 0) Master switch
         if (switchMaster != null) {
-            boolean masterEnabled = NotificationPreferences.isNotificationsMasterEnabled(context);
             switchMaster.setChecked(masterEnabled);
             switchMaster.setOnCheckedChangeListener((btn, isChecked) -> {
+                if (isUpdatingNotificationSwitches) return;
+
                 if (isChecked) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission()) {
+                        isUpdatingNotificationSwitches = true;
+                        switchMaster.setChecked(false);
+                        isUpdatingNotificationSwitches = false;
                         requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
                         return;
                     }
                     NotificationPreferences.setNotificationsMasterEnabled(requireContext(), true);
+                    setAllChildNotificationsEnabled(true);
                     updateNotificationUi(true);
                     FcmTopicManager.syncSubscriptions(requireContext());
                 } else {
                     NotificationPreferences.setNotificationsMasterEnabled(requireContext(), false);
+                    setAllChildNotificationsEnabled(false);
                     updateNotificationUi(false);
                     FcmTopicManager.unsubscribeFromAll(requireContext());
                 }
@@ -193,10 +216,11 @@ public class SettingsFragment extends Fragment {
 
         // 2) Replacements switch
         if (switchReplacements != null) {
-            switchReplacements.setChecked(NotificationPreferences.isNotifyReplacementsEnabled(context));
+            switchReplacements.setChecked(replacementsEnabled);
             switchReplacements.setOnCheckedChangeListener((btn, isChecked) -> {
+                if (isUpdatingNotificationSwitches) return;
                 NotificationPreferences.setNotifyReplacementsEnabled(requireContext(), isChecked);
-                FcmTopicManager.syncSubscriptions(requireContext());
+                onChildNotificationChanged();
             });
             if (layoutReplacements != null) {
                 layoutReplacements.setOnClickListener(v -> {
@@ -207,10 +231,11 @@ public class SettingsFragment extends Fragment {
 
         // 3) Articles switch
         if (switchArticles != null) {
-            switchArticles.setChecked(NotificationPreferences.isNotifyArticlesEnabled(context));
+            switchArticles.setChecked(articlesEnabled);
             switchArticles.setOnCheckedChangeListener((btn, isChecked) -> {
+                if (isUpdatingNotificationSwitches) return;
                 NotificationPreferences.setNotifyArticlesEnabled(requireContext(), isChecked);
-                FcmTopicManager.syncSubscriptions(requireContext());
+                onChildNotificationChanged();
             });
             if (layoutArticles != null) {
                 layoutArticles.setOnClickListener(v -> {
@@ -224,7 +249,7 @@ public class SettingsFragment extends Fragment {
             layoutPermissionNotice.setOnClickListener(v -> openAppNotificationSettings());
         }
 
-        updateNotificationUi(NotificationPreferences.isNotificationsMasterEnabled(context));
+        updateNotificationUi(masterEnabled);
     }
 
     private void openAppNotificationSettings() {
@@ -251,12 +276,69 @@ public class SettingsFragment extends Fragment {
         return true;
     }
 
+    private void setAllChildNotificationsEnabled(boolean enabled) {
+        if (!isAdded() || view == null) return;
+        Context context = getContext();
+        if (context == null) return;
+
+        isUpdatingNotificationSwitches = true;
+        try {
+            NotificationPreferences.setNotifyReplacementsEnabled(context, enabled);
+            NotificationPreferences.setNotifyArticlesEnabled(context, enabled);
+
+            SwitchMaterial switchReplacements = view.findViewById(R.id.switch_notifyReplacements);
+            if (switchReplacements != null) {
+                switchReplacements.setChecked(enabled);
+            }
+            SwitchMaterial switchArticles = view.findViewById(R.id.switch_notifyArticles);
+            if (switchArticles != null) {
+                switchArticles.setChecked(enabled);
+            }
+        } finally {
+            isUpdatingNotificationSwitches = false;
+        }
+    }
+
+    private void onChildNotificationChanged() {
+        if (!isAdded() || view == null) return;
+        Context context = getContext();
+        if (context == null) return;
+
+        SwitchMaterial switchReplacements = view.findViewById(R.id.switch_notifyReplacements);
+        SwitchMaterial switchArticles = view.findViewById(R.id.switch_notifyArticles);
+        SwitchMaterial switchMaster = view.findViewById(R.id.switch_notificationsMaster);
+
+        boolean anyChildEnabled = (switchReplacements != null && switchReplacements.isChecked())
+                || (switchArticles != null && switchArticles.isChecked());
+
+        if (!anyChildEnabled) {
+            isUpdatingNotificationSwitches = true;
+            try {
+                NotificationPreferences.setNotificationsMasterEnabled(context, false);
+                if (switchMaster != null) {
+                    switchMaster.setChecked(false);
+                }
+                updateNotificationUi(false);
+                FcmTopicManager.unsubscribeFromAll(context);
+            } finally {
+                isUpdatingNotificationSwitches = false;
+            }
+        } else {
+            FcmTopicManager.syncSubscriptions(context);
+        }
+    }
+
     private void updateNotificationUi(boolean isMasterChecked) {
         if (view == null || !isAdded()) return;
 
         SwitchMaterial switchMaster = view.findViewById(R.id.switch_notificationsMaster);
         if (switchMaster != null && switchMaster.isChecked() != isMasterChecked) {
-            switchMaster.setChecked(isMasterChecked);
+            isUpdatingNotificationSwitches = true;
+            try {
+                switchMaster.setChecked(isMasterChecked);
+            } finally {
+                isUpdatingNotificationSwitches = false;
+            }
         }
 
         View subOptions = view.findViewById(R.id.layout_notificationSubOptions);
