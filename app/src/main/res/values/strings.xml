@@ -93,7 +93,7 @@
 
     <!-- Settings Notifications -->
     <string name="settings_notifications_title">Notifications</string>
-    <string name="settings_notifications_master">Push notifications</string>
+    <string name="settings_notifications_master">Notifications</string>
     <string name="settings_notifications_master_desc">Receive notifications about replacements and news</string>
     <string name="settings_notifications_timetable">Timetable changes</string>
     <string name="settings_notifications_timetable_desc">Receive notifications about timetable changes</string>
