@@ -83,7 +83,7 @@
     <!-- Settings Notifications -->
     <string name="settings_notifications_title">Powiadomienia</string>
     <string name="settings_notifications_master">Powiadomienia push</string>
-    <string name="settings_notifications_master_desc">Otrzymuj powiadomienia o zmianach w planie, zastępstwach i wiadomościach</string>
+    <string name="settings_notifications_master_desc">Otrzymuj powiadomienia o zastępstwach i artykułach</string>
     <string name="settings_notifications_timetable">Zmiany w planie lekcji</string>
     <string name="settings_notifications_timetable_desc">Otrzymuj powiadomienia o zmianach w planie lekcji</string>
     <string name="settings_notifications_replacements">Nowe zastępstwa</string>

@@ -80,24 +80,24 @@
 
     <!-- Notifications Channels -->
     <string name="notification_channel_timetable">Timetable updates</string>
-    <string name="notification_channel_replacements">Substitutions</string>
+    <string name="notification_channel_replacements">replacements</string>
     <string name="notification_channel_articles">School news</string>
 
     <!-- Notification Messages -->
     <string name="notification_timetable_title">Timetable update</string>
-    <string name="notification_replacement_title">New substitutions</string>
-    <string name="notification_replacement_class_body">New substitutions are available for class %1$s</string>
-    <string name="notification_replacement_teacher_body">New substitutions are available for teachers</string>
-    <string name="notification_replacement_general_body">New substitutions are available</string>
+    <string name="notification_replacement_title">New replacements</string>
+    <string name="notification_replacement_class_body">New replacements are available for class %1$s</string>
+    <string name="notification_replacement_teacher_body">New replacements are available for teachers</string>
+    <string name="notification_replacement_general_body">New replacements are available</string>
     <string name="notification_article_title">New article</string>
 
     <!-- Settings Notifications -->
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_master">Push notifications</string>
-    <string name="settings_notifications_master_desc">Receive notifications about timetable changes, substitutions, and news</string>
+    <string name="settings_notifications_master_desc">Receive notifications about replacements and news</string>
     <string name="settings_notifications_timetable">Timetable changes</string>
     <string name="settings_notifications_timetable_desc">Receive notifications about timetable changes</string>
-    <string name="settings_notifications_replacements">Substitutions</string>
+    <string name="settings_notifications_replacements">Replacements</string>
     <string name="settings_notifications_replacements_desc">Receive notifications about new replacements</string>
     <string name="settings_notifications_articles">Articles</string>
     <string name="settings_notifications_articles_desc">Receive notifications about new articles</string>
