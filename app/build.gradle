@@ -10,7 +10,7 @@ android {
     compileSdk 36
 
     defaultConfig {
-        applicationId 'pl.rychter.szymon.planlekcji'
+        applicationId 'pl.rychter.szymon.planlekcji2'
         minSdk 24
         targetSdk 36
         versionCode 10
